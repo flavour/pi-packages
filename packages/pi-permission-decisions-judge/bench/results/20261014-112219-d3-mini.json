@@ -1,0 +1,887 @@
+{
+  "meta": {
+    "label": "d3-mini",
+    "started": "2026-10-14T11:22:19",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "2 slots x n_ctx 32768; Q8_0; served from HF cache snapshot c03ac9c3",
+    "identity_check": {
+      "model_expected": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": null,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--ggml-org--vllm-d3-mini-GGUF/snapshots/c03ac9c3bdc5ae949111acb945338933f396e4d7/vllm-d3-mini-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core,concurrency",
+    "n_records": 61
+  },
+  "records": [
+    {
+      "case": "identity",
+      "params": {
+        "path": "/health"
+      },
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/props"
+      },
+      "status": 200,
+      "body": {
+        "default_generation_settings": {
+          "params": {
+            "seed": 4294967295,
+            "temperature": 0.800000011920929,
+            "dynatemp_range": 0.0,
+            "dynatemp_exponent": 1.0,
+            "top_k": 40,
+            "top_p": 0.949999988079071,
+            "min_p": 0.05000000074505806,
+            "top_n_sigma": -1.0,
+            "xtc_probability": 0.0,
+            "xtc_threshold": 0.10000000149011612,
+            "typical_p": 1.0,
+            "repeat_last_n": 64,
+            "repeat_penalty": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "dry_multiplier": 0.0,
+            "dry_base": 1.75,
+            "dry_allowed_length": 2,
+            "dry_penalty_last_n": 64,
+            "mirostat": 0,
+            "mirostat_tau": 5.0,
+            "mirostat_eta": 0.10000000149011612,
+            "adaptive_target": -1.0,
+            "adaptive_decay": 0.8999999761581421,
+            "max_tokens": -1,
+            "n_predict": -1,
+            "n_keep": 0,
+            "n_discard": 0,
+            "ignore_eos": false,
+            "stream": false,
+            "n_probs": 0,
+            "min_keep": 0,
+            "chat_format": "Content-only",
+            "reasoning_format": "none",
+            "reasoning_in_content": false,
+            "generation_prompt": "",
+            "samplers": [
+              "penalties",
+              "dry",
+              "top_n_sigma",
+              "top_k",
+              "typ_p",
+              "top_p",
+              "min_p",
+              "xtc",
+              "temperature"
+            ],
+            "speculative.types": "none",
+            "timings_per_token": false,
+            "post_sampling_probs": false,
+            "backend_sampling": false,
+            "lora": []
+          },
+          "n_ctx": 32768
+        },
+        "total_slots": 2,
+        "model_alias": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+        "model_ftype": "Q8_0",
+        "model_path": "/home/fran/.cache/huggingface/hub/models--ggml-org--vllm-d3-mini-GGUF/snapshots/c03ac9c3bdc5ae949111acb945338933f396e4d7/vllm-d3-mini-Q8_0.gguf",
+        "modalities": {
+          "vision": true,
+          "video": true,
+          "audio": false
+        },
+        "media_marker": "<__media_90uwGzouSvjDKhYSTbTTD8cYFag0eLib__>",
+        "endpoint_slots": true,
+        "endpoint_props": false,
+        "endpoint_metrics": false,
+        "ui": true,
+        "ui_settings": {},
+        "chat_template": "{%- set image_count = namespace(value=0) %}\n{%- set video_count = namespace(value=0) %}\n{%- macro render_content(content, do_vision_count, is_system_content=false) %}\n    {%- if content is string %}\n        {{- content }}\n    {%- elif content is iterable and content is not mapping %}\n        {%- for item in content %}\n            {%- if 'image' in item or 'image_url' in item or item.type == 'image' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain images.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set image_count.value = image_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Picture ' ~ image_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|image_pad|><|vision_end|>' }}\n            {%- elif 'video' in item or item.type == 'video' %}\n                {%- if is_system_content %}\n                    {{- raise_exception('System message cannot contain videos.') }}\n                {%- endif %}\n                {%- if do_vision_count %}\n                    {%- set video_count.value = video_count.value + 1 %}\n                {%- endif %}\n                {%- if add_vision_id %}\n                    {{- 'Video ' ~ video_count.value ~ ': ' }}\n                {%- endif %}\n                {{- '<|vision_start|><|video_pad|><|vision_end|>' }}\n            {%- elif 'text' in item %}\n                {{- item.text }}\n            {%- else %}\n                {{- raise_exception('Unexpected item type in content.') }}\n            {%- endif %}\n        {%- endfor %}\n    {%- elif content is none or content is undefined %}\n        {{- '' }}\n    {%- else %}\n        {{- raise_exception('Unexpected content type.') }}\n    {%- endif %}\n{%- endmacro %}\n{%- if not messages %}\n    {{- raise_exception('No messages provided.') }}\n{%- endif %}\n{%- if tools and tools is iterable and tools is not mapping %}\n    {{- '<|im_start|>system\\n' }}\n    {{- \"# Tools\\n\\nYou have access to the following functions:\\n\\n<tools>\" }}\n    {%- for tool in tools %}\n        {{- \"\\n\" }}\n        {{- tool | tojson }}\n    {%- endfor %}\n    {{- \"\\n</tools>\" }}\n    {{- '\\n\\nIf you choose to call a function ONLY reply in the following format with NO suffix:\\n\\n<tool_call>\\n<function=example_function_name>\\n<parameter=example_parameter_1>\\nvalue_1\\n</parameter>\\n<parameter=example_parameter_2>\\nThis is the value for the second parameter\\nthat can span\\nmultiple lines\\n</parameter>\\n</function>\\n</tool_call>\\n\\n<IMPORTANT>\\nReminder:\\n- Function calls MUST follow the specified format: an inner <function=...></function> block must be nested within <tool_call></tool_call> XML tags\\n- Required parameters MUST be specified\\n- You may provide optional reasoning for your function call in natural language BEFORE the function call, but NOT after\\n- If there is no function call available, answer the question like normal with your current knowledge and do not tell the user about function calls\\n</IMPORTANT>' }}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {%- if content %}\n            {{- '\\n\\n' + content }}\n        {%- endif %}\n    {%- endif %}\n    {{- '<|im_end|>\\n' }}\n{%- else %}\n    {%- if messages[0].role == 'system' %}\n        {%- set content = render_content(messages[0].content, false, true)|trim %}\n        {{- '<|im_start|>system\\n' + content + '<|im_end|>\\n' }}\n    {%- endif %}\n{%- endif %}\n{%- set ns = namespace(multi_step_tool=true, last_query_index=messages|length - 1) %}\n{%- for message in messages[::-1] %}\n    {%- set index = (messages|length - 1) - loop.index0 %}\n    {%- if ns.multi_step_tool and message.role == \"user\" %}\n        {%- set content = render_content(message.content, false)|trim %}\n        {%- if not(content.startswith('<tool_response>') and content.endswith('</tool_response>')) %}\n            {%- set ns.multi_step_tool = false %}\n            {%- set ns.last_query_index = index %}\n        {%- endif %}\n    {%- endif %}\n{%- endfor %}\n{%- if ns.multi_step_tool %}\n    {{- raise_exception('No user query found in messages.') }}\n{%- endif %}\n{%- for message in messages %}\n    {%- set content = render_content(message.content, true)|trim %}\n    {%- if message.role == \"system\" %}\n        {%- if not loop.first %}\n            {{- raise_exception('System message must be at the beginning.') }}\n        {%- endif %}\n    {%- elif message.role == \"user\" %}\n        {{- '<|im_start|>' + message.role + '\\n' + content + '<|im_end|>' + '\\n' }}\n    {%- elif message.role == \"assistant\" %}\n        {%- set reasoning_content = '' %}\n        {%- if message.reasoning_content is string %}\n            {%- set reasoning_content = message.reasoning_content %}\n        {%- else %}\n            {%- if '</think>' in content %}\n                {%- set reasoning_content = content.split('</think>')[0].rstrip('\\n').split('<think>')[-1].lstrip('\\n') %}\n                {%- set content = content.split('</think>')[-1].lstrip('\\n') %}\n            {%- endif %}\n        {%- endif %}\n        {%- set reasoning_content = reasoning_content|trim %}\n        {%- if loop.index0 > ns.last_query_index %}\n            {{- '<|im_start|>' + message.role + '\\n<think>\\n' + reasoning_content + '\\n</think>\\n\\n' + content }}\n        {%- else %}\n            {{- '<|im_start|>' + message.role + '\\n' + content }}\n        {%- endif %}\n        {%- if message.tool_calls and message.tool_calls is iterable and message.tool_calls is not mapping %}\n            {%- for tool_call in message.tool_calls %}\n                {%- if tool_call.function is defined %}\n                    {%- set tool_call = tool_call.function %}\n                {%- endif %}\n                {%- if loop.first %}\n                    {%- if content|trim %}\n                        {{- '\\n\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- else %}\n                        {{- '<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                    {%- endif %}\n                {%- else %}\n                    {{- '\\n<tool_call>\\n<function=' + tool_call.name + '>\\n' }}\n                {%- endif %}\n                {%- if tool_call.arguments is defined %}\n                    {%- for args_name, args_value in tool_call.arguments|items %}\n                        {{- '<parameter=' + args_name + '>\\n' }}\n                        {%- set args_value = args_value | tojson | safe if args_value is mapping or (args_value is sequence and args_value is not string) else args_value | string %}\n                        {{- args_value }}\n                        {{- '\\n</parameter>\\n' }}\n                    {%- endfor %}\n                {%- endif %}\n                {{- '</function>\\n</tool_call>' }}\n            {%- endfor %}\n        {%- endif %}\n        {{- '<|im_end|>\\n' }}\n    {%- elif message.role == \"tool\" %}\n        {%- if loop.previtem and loop.previtem.role != \"tool\" %}\n            {{- '<|im_start|>user' }}\n        {%- endif %}\n        {{- '\\n<tool_response>\\n' }}\n        {{- content }}\n        {{- '\\n</tool_response>' }}\n        {%- if not loop.last and loop.nextitem.role != \"tool\" %}\n            {{- '<|im_end|>\\n' }}\n        {%- elif loop.last %}\n            {{- '<|im_end|>\\n' }}\n        {%- endif %}\n    {%- else %}\n        {{- raise_exception('Unexpected message role.') }}\n    {%- endif %}\n{%- endfor %}\n{%- if add_generation_prompt %}\n    {{- '<|im_start|>assistant\\n' }}\n    {%- if enable_thinking is defined and enable_thinking is false %}\n        {{- '<think>\\n\\n</think>\\n\\n' }}\n    {%- else %}\n        {{- '<think>\\n' }}\n    {%- endif %}\n{%- endif %}",
+        "chat_template_caps": {
+          "supports_object_arguments": true,
+          "supports_parallel_tool_calls": true,
+          "supports_preserve_reasoning": false,
+          "supports_reasoning_effort": false,
+          "supports_string_content": true,
+          "supports_system_role": true,
+          "supports_tool_calls": true,
+          "supports_tools": true,
+          "supports_typed_content": true
+        },
+        "bos_token": ",",
+        "eos_token": "<|im_end|>",
+        "build_info": "b11627-8c2134a87",
+        "is_sleeping": false,
+        "cors_proxy_enabled": false
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/v1/models"
+      },
+      "status": 200,
+      "body": {
+        "models": [
+          {
+            "name": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+            "model": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion",
+              "multimodal"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+            "aliases": [
+              "ggml-org/vllm-d3-mini-GGUF:Q8_0"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text",
+                "image",
+                "video"
+              ],
+              "output_modalities": [
+                "decisions"
+              ]
+            },
+            "created": 1791973339,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 2,
+              "n_vocab": 248320,
+              "n_ctx": 32768,
+              "n_ctx_train": 262144,
+              "n_embd": 2560,
+              "n_params": 4841450496,
+              "size": 5146865664,
+              "ftype": "Q8_0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/slots"
+      },
+      "status": 200,
+      "body": [
+        {
+          "id": 0,
+          "n_ctx": 32768,
+          "speculative": false,
+          "is_processing": false
+        },
+        {
+          "id": 1,
+          "n_ctx": 32768,
+          "speculative": false,
+          "is_processing": false
+        }
+      ]
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "response.model"
+      },
+      "model": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "kind": "ok",
+      "error": null
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 1,
+        "state": "toy"
+      },
+      "input_tokens": 104,
+      "tokens_per_question": 104.0,
+      "latency": 0.2086,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 2,
+        "state": "toy"
+      },
+      "input_tokens": 208,
+      "tokens_per_question": 104.0,
+      "latency": 0.4023,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 4,
+        "state": "toy"
+      },
+      "input_tokens": 416,
+      "tokens_per_question": 104.0,
+      "latency": 0.8782,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 8,
+        "state": "toy"
+      },
+      "input_tokens": 832,
+      "tokens_per_question": 104.0,
+      "latency": 1.6946,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 12,
+        "state": "toy"
+      },
+      "input_tokens": 1250,
+      "tokens_per_question": 104.2,
+      "latency": 2.4886,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 1,
+        "pads": 15
+      },
+      "input_tokens": 254,
+      "tokens_per_question": 254.0,
+      "latency": 0.4726,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 4,
+        "pads": 15
+      },
+      "input_tokens": 1016,
+      "tokens_per_question": 254.0,
+      "latency": 1.6553,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 1
+      },
+      "median": 0.2078,
+      "min": 0.2072,
+      "max": 0.2101,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 2
+      },
+      "median": 0.4041,
+      "min": 0.4025,
+      "max": 0.4087,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 3
+      },
+      "median": 0.6028,
+      "min": 0.6008,
+      "max": 0.6053,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 4
+      },
+      "median": 0.7969,
+      "min": 0.7951,
+      "max": 0.8058,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 6
+      },
+      "median": 1.1878,
+      "min": 1.1857,
+      "max": 1.2523,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 8
+      },
+      "median": 1.5786,
+      "min": 1.5777,
+      "max": 1.5815,
+      "tokens_per_question": 104.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 12
+      },
+      "median": 2.3636,
+      "min": 2.3368,
+      "max": 4.4223,
+      "tokens_per_question": 104.2
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 1,
+        "to": 2
+      },
+      "ms_per_question": 196.3
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 2,
+        "to": 3
+      },
+      "ms_per_question": 198.7
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 3,
+        "to": 4
+      },
+      "ms_per_question": 194.1
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 4,
+        "to": 6
+      },
+      "ms_per_question": 195.4
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 6,
+        "to": 8
+      },
+      "ms_per_question": 195.4
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 8,
+        "to": 12
+      },
+      "ms_per_question": 196.2
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 2
+      },
+      "median": 0.2279,
+      "input_tokens": 118,
+      "min": 0.2199,
+      "max": 0.2338
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 4
+      },
+      "median": 0.3031,
+      "input_tokens": 146,
+      "min": 0.2993,
+      "max": 0.3168
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 8
+      },
+      "median": 0.3626,
+      "input_tokens": 202,
+      "min": 0.3552,
+      "max": 0.3684
+    },
+    {
+      "case": "encoding_equivalence",
+      "params": {
+        "encoding": "1 choice x4 options"
+      },
+      "median": 0.4677,
+      "input_tokens": 259,
+      "answers": {
+        "which": {
+          "choice": "reversible",
+          "confidence": 0.4826
+        }
+      }
+    },
+    {
+      "case": "encoding_equivalence",
+      "params": {
+        "encoding": "4 noul questions"
+      },
+      "median": 1.4749,
+      "input_tokens": 821,
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "blast_radius": 0.9782,
+        "credential": 0.9999
+      }
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 1
+      },
+      "median": 0.3663,
+      "input_tokens": 212,
+      "tokens_per_question": 212.0,
+      "answers": {
+        "intent": 0.9963
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 2
+      },
+      "median": 0.7222,
+      "input_tokens": 424,
+      "tokens_per_question": 212.0,
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 4
+      },
+      "median": 1.413,
+      "input_tokens": 821,
+      "tokens_per_question": 205.2,
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "blast_radius": 0.9782,
+        "credential": 0.9999
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": "2 noul + 1 score(5)"
+      },
+      "median": 1.0412,
+      "input_tokens": 608,
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "severity": {
+          "score": 0.7666,
+          "confidence": 0.3631
+        }
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "alone"
+      },
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "blast_radius": 0.9782,
+        "credential": 0.9999
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "batched x4"
+      },
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "blast_radius": 0.9782,
+        "credential": 0.9999
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "batched x2"
+      },
+      "answers": {
+        "intent": 0.9963,
+        "reversible": 0.9891,
+        "blast_radius": 0.9782,
+        "credential": 0.9999
+      }
+    },
+    {
+      "case": "multiseq_drift",
+      "params": {
+        "vs": "batched x4"
+      },
+      "abs_delta": {
+        "intent": 0.0,
+        "reversible": 0.0,
+        "blast_radius": 0.0,
+        "credential": 0.0
+      },
+      "max_delta": 0.0
+    },
+    {
+      "case": "multiseq_drift",
+      "params": {
+        "vs": "batched x2"
+      },
+      "abs_delta": {
+        "intent": 0.0,
+        "reversible": 0.0,
+        "blast_radius": 0.0,
+        "credential": 0.0
+      },
+      "max_delta": 0.0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 1
+      },
+      "readings": [
+        0.9891
+      ],
+      "spread": 0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 2
+      },
+      "readings": [
+        0.9891,
+        0.9891
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 4
+      },
+      "readings": [
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 8
+      },
+      "readings": [
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891,
+        0.9891
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 0
+      },
+      "state_tokens_est": 15,
+      "tok_1q": 104,
+      "ms_1q": 216,
+      "tok_4q": 416,
+      "ms_4q": 791,
+      "ms_per_extra_question": 191.9
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 5
+      },
+      "state_tokens_est": 71,
+      "tok_1q": 154,
+      "ms_1q": 314,
+      "tok_4q": 616,
+      "ms_4q": 1259,
+      "ms_per_extra_question": 314.8
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 15
+      },
+      "state_tokens_est": 183,
+      "tok_1q": 254,
+      "ms_1q": 420,
+      "tok_4q": 1016,
+      "ms_4q": 1589,
+      "ms_per_extra_question": 389.8
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 30
+      },
+      "skipped": "est 352 tok/q > budget"
+    },
+    {
+      "case": "determinism",
+      "params": {
+        "reps": 5
+      },
+      "distinct": 1,
+      "sets": [
+        {
+          "blast_radius": 0.9782,
+          "credential": 0.9999,
+          "intent": 0.9963,
+          "reversible": 0.9891
+        }
+      ]
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, no criteria"
+      },
+      "median": 0.2145,
+      "input_tokens": 111,
+      "reading": 0.0298,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, loose criteria"
+      },
+      "median": 0.2645,
+      "input_tokens": 111,
+      "reading": 0.0317,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build + note, anchored criteria"
+      },
+      "median": 0.3655,
+      "input_tokens": 157,
+      "reading": 0.9812,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, choice safe/moderate/dangerous"
+      },
+      "median": 0.2608,
+      "input_tokens": 121,
+      "reading": {
+        "choice": "safe",
+        "confidence": 0.0624
+      },
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "git status && npm test: reversible"
+      },
+      "median": 0.2987,
+      "input_tokens": 145,
+      "reading": 0.9602,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "git status && npm test: authorized"
+      },
+      "median": 0.3125,
+      "input_tokens": 158,
+      "reading": 0.9914,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "curl -d @~/.ssh/id_ed25519: no credential sent"
+      },
+      "median": 0.3013,
+      "input_tokens": 145,
+      "reading": 0.0007,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "curl -d @~/.ssh/id_ed25519: authorized"
+      },
+      "median": 0.3228,
+      "input_tokens": 171,
+      "reading": 0.0072,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "12 generic questions"
+      },
+      "median": 2.3602,
+      "readings": [
+        0.1729,
+        0.1778,
+        0.1818,
+        0.1901,
+        0.1918,
+        0.2075,
+        0.2079,
+        0.2094,
+        0.2101,
+        0.2113,
+        0.2159,
+        0.2217
+      ],
+      "band": [
+        0.1729,
+        0.2217
+      ]
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "1 request x4q"
+      },
+      "median": 1.4094,
+      "input_tokens": 821
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "2 requests x2q"
+      },
+      "wall": 1.409,
+      "per_request": [
+        1.408,
+        0.703
+      ],
+      "total_tokens": 821
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "4 requests x1q"
+      },
+      "wall": 1.418,
+      "per_request": [
+        0.72,
+        1.415,
+        1.415,
+        0.719
+      ],
+      "total_tokens": 821
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "4 parallel 1q (toy)"
+      },
+      "wall": 0.793,
+      "per_request": [
+        0.792,
+        0.402,
+        0.791,
+        0.401
+      ]
+    }
+  ]
+}

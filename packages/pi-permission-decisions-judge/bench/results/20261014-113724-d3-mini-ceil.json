@@ -1,0 +1,80 @@
+{
+  "meta": {
+    "label": "d3-mini-ceil",
+    "started": "2026-10-14T11:37:24",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 2, default -b/-ub",
+    "identity_check": {
+      "model_expected": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "ggml-org/vllm-d3-mini-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": null,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--ggml-org--vllm-d3-mini-GGUF/snapshots/c03ac9c3bdc5ae949111acb945338933f396e4d7/vllm-d3-mini-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core",
+    "n_records": 5
+  },
+  "records": [
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 20
+      },
+      "kind": "ok",
+      "input_tokens": 304,
+      "latency": 0.555,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 30
+      },
+      "kind": "ok",
+      "input_tokens": 404,
+      "latency": 0.69,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 40
+      },
+      "kind": "ok",
+      "input_tokens": 504,
+      "latency": 0.794,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 44
+      },
+      "kind": "http",
+      "input_tokens": null,
+      "latency": null,
+      "error": "{\"error\":{\"code\":500,\"message\":\"input (544 tokens) is too large to process. increase the physical batch size (current batch size: 512)\",\"type\":\"server_error\"}}"
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "reported": "n_ubatch"
+      },
+      "kind": "info",
+      "input_tokens": 512
+    }
+  ]
+}

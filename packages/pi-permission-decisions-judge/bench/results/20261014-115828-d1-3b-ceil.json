@@ -1,0 +1,248 @@
+{
+  "meta": {
+    "label": "d1-3b-ceil",
+    "started": "2026-10-14T11:58:28",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 2, default -b 2048 / -ub 512, n_ctx 16384 per slot",
+    "identity_check": {
+      "model_expected": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": null,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core",
+    "n_records": 20
+  },
+  "records": [
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 20
+      },
+      "kind": "ok",
+      "input_tokens": 239,
+      "latency": 0.238,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 30
+      },
+      "kind": "ok",
+      "input_tokens": 339,
+      "latency": 0.307,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 40
+      },
+      "kind": "ok",
+      "input_tokens": 439,
+      "latency": 0.375,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 44
+      },
+      "kind": "ok",
+      "input_tokens": 479,
+      "latency": 0.408,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 46
+      },
+      "kind": "ok",
+      "input_tokens": 499,
+      "latency": 0.416,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 50
+      },
+      "kind": "ok",
+      "input_tokens": 539,
+      "latency": 0.472,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 60
+      },
+      "kind": "ok",
+      "input_tokens": 639,
+      "latency": 0.548,
+      "error": null
+    },
+    {
+      "case": "ceiling",
+      "params": {
+        "pads": 80
+      },
+      "kind": "ok",
+      "input_tokens": 839,
+      "latency": 0.702,
+      "error": null
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 1
+      },
+      "state_tokens_est": 15,
+      "median": 0.1088,
+      "min": 0.1063,
+      "max": 0.1437,
+      "input_tokens": 39,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 4
+      },
+      "state_tokens_est": 15,
+      "median": 0.3308,
+      "min": 0.3231,
+      "max": 0.4135,
+      "input_tokens": 156,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 74.0
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 1
+      },
+      "state_tokens_est": 183,
+      "median": 0.1819,
+      "min": 0.1786,
+      "max": 0.1939,
+      "input_tokens": 189,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 4
+      },
+      "state_tokens_est": 183,
+      "median": 0.5426,
+      "min": 0.5373,
+      "max": 0.5869,
+      "input_tokens": 756,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 120.2
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 1
+      },
+      "state_tokens_est": 465,
+      "median": 0.3788,
+      "min": 0.3731,
+      "max": 0.3821,
+      "input_tokens": 439,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 4
+      },
+      "state_tokens_est": 465,
+      "median": 0.9282,
+      "min": 0.9278,
+      "max": 0.9391,
+      "input_tokens": 1756,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 183.1
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 1
+      },
+      "state_tokens_est": 915,
+      "median": 0.6839,
+      "min": 0.6766,
+      "max": 0.6952,
+      "input_tokens": 839,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 4
+      },
+      "state_tokens_est": 915,
+      "median": 1.5424,
+      "min": 1.5419,
+      "max": 1.5432,
+      "input_tokens": 3356,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 286.2
+    }
+  ]
+}

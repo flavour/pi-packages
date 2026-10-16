@@ -1,0 +1,887 @@
+{
+  "meta": {
+    "label": "d1-3b",
+    "started": "2026-10-14T11:51:47",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 2, default -b 2048 / -ub 512, n_ctx 16384 per slot",
+    "identity_check": {
+      "model_expected": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": null,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core,concurrency",
+    "n_records": 61
+  },
+  "records": [
+    {
+      "case": "identity",
+      "params": {
+        "path": "/health"
+      },
+      "status": 200,
+      "body": {
+        "status": "ok"
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/props"
+      },
+      "status": 200,
+      "body": {
+        "default_generation_settings": {
+          "params": {
+            "seed": 4294967295,
+            "temperature": 0.800000011920929,
+            "dynatemp_range": 0.0,
+            "dynatemp_exponent": 1.0,
+            "top_k": 40,
+            "top_p": 0.949999988079071,
+            "min_p": 0.05000000074505806,
+            "top_n_sigma": -1.0,
+            "xtc_probability": 0.0,
+            "xtc_threshold": 0.10000000149011612,
+            "typical_p": 1.0,
+            "repeat_last_n": 64,
+            "repeat_penalty": 1.0,
+            "presence_penalty": 0.0,
+            "frequency_penalty": 0.0,
+            "dry_multiplier": 0.0,
+            "dry_base": 1.75,
+            "dry_allowed_length": 2,
+            "dry_penalty_last_n": 64,
+            "mirostat": 0,
+            "mirostat_tau": 5.0,
+            "mirostat_eta": 0.10000000149011612,
+            "adaptive_target": -1.0,
+            "adaptive_decay": 0.8999999761581421,
+            "max_tokens": -1,
+            "n_predict": -1,
+            "n_keep": 0,
+            "n_discard": 0,
+            "ignore_eos": false,
+            "stream": false,
+            "n_probs": 0,
+            "min_keep": 0,
+            "chat_format": "Content-only",
+            "reasoning_format": "none",
+            "reasoning_in_content": false,
+            "generation_prompt": "",
+            "samplers": [
+              "penalties",
+              "dry",
+              "top_n_sigma",
+              "top_k",
+              "typ_p",
+              "top_p",
+              "min_p",
+              "xtc",
+              "temperature"
+            ],
+            "speculative.types": "none",
+            "timings_per_token": false,
+            "post_sampling_probs": false,
+            "backend_sampling": false,
+            "lora": []
+          },
+          "n_ctx": 16384
+        },
+        "total_slots": 2,
+        "model_alias": "LiquidAI/d1-3B-GGUF:Q8_0",
+        "model_ftype": "Q8_0",
+        "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf",
+        "modalities": {
+          "vision": true,
+          "video": true,
+          "audio": false
+        },
+        "media_marker": "<__media_SBdMW0rwgKRqgNGR595hBtS2oCxNIPwz__>",
+        "endpoint_slots": true,
+        "endpoint_props": false,
+        "endpoint_metrics": false,
+        "ui": true,
+        "ui_settings": {},
+        "chat_template": "{{- bos_token -}}\n{%- set preserve_thinking = preserve_thinking | default(false) -%}\n\n{%- macro format_arg_value(arg_value) -%}\n    {%- if arg_value is string -%}\n        {{- \"'\" + (arg_value | replace(\"\\\\\", \"\\\\\\\\\") | replace(\"'\", \"\\\\'\") | replace(\"\\n\", \"\\\\n\") | replace(\"\\r\", \"\\\\r\")) + \"'\" -}}\n    {%- elif arg_value is mapping or arg_value is iterable -%}\n        {{- arg_value | tojson -}}\n    {%- else -%}\n        {{- arg_value | string -}}\n    {%- endif -%}\n{%- endmacro -%}\n\n{%- macro parse_content(content) -%}\n    {%- if content is string -%}\n        {{- content -}}\n    {%- elif content is mapping -%}\n        {{- content | tojson -}}\n    {%- elif content is iterable -%}\n        {%- set _ns = namespace(result=\"\") -%}\n        {%- for item in content -%}\n            {%- if item is string -%}\n                {%- set _ns.result = _ns.result + item -%}\n            {%- elif item is mapping and item.get(\"type\") == \"image\" -%}\n                {%- set _ns.result = _ns.result + \"<image>\" -%}\n            {%- elif item is mapping and item.get(\"type\") == \"text\" -%}\n                {%- set _ns.result = _ns.result + ((item.get(\"text\") or \"\") | string) -%}\n            {%- else -%}\n                {%- set _ns.result = _ns.result + (item | tojson) -%}\n            {%- endif -%}\n        {%- endfor -%}\n        {{- _ns.result -}}\n    {%- endif -%}\n{%- endmacro -%}\n\n{%- macro render_tool_calls(tool_calls) -%}\n    {%- set tool_calls_ns = namespace(tool_calls=[]) -%}\n    {%- for tool_call in tool_calls -%}\n        {%- set func = tool_call[\"function\"] if \"function\" in tool_call else tool_call -%}\n        {%- set func_name = func[\"name\"] -%}\n        {%- set func_args = func.get(\"arguments\") -%}\n        {%- set args_ns = namespace(arg_strings=[]) -%}\n        {%- if func_args is mapping -%}\n            {%- for arg_name, arg_value in func_args.items() -%}\n                {%- set args_ns.arg_strings = args_ns.arg_strings + [arg_name + \"=\" + format_arg_value(arg_value)] -%}\n            {%- endfor -%}\n        {%- elif func_args is string and (func_args | trim) not in [\"\", \"{}\", \"null\"] -%}\n            {{- raise_exception(\"Tool call arguments must be a mapping, got a JSON-encoded string: parse arguments with json.loads() before applying the chat template\") -}}\n        {%- endif -%}\n        {%- set tool_calls_ns.tool_calls = tool_calls_ns.tool_calls + [func_name + \"(\" + (args_ns.arg_strings | join(\", \")) + \")\"] -%}\n    {%- endfor -%}\n    {{- \"<|tool_call_start|>[\" + (tool_calls_ns.tool_calls | join(\", \")) + \"]<|tool_call_end|>\" -}}\n{%- endmacro -%}\n\n{%- set ns = namespace(system_prompt=\"\", last_user_index=-1) -%}\n{%- if messages and messages[0][\"role\"] == \"system\" -%}\n    {%- if messages[0].get(\"content\") -%}\n        {%- set ns.system_prompt = parse_content(messages[0][\"content\"]) -%}\n    {%- endif -%}\n    {%- set messages = messages[1:] -%}\n{%- endif -%}\n{%- if tools -%}\n    {%- set ns.system_prompt = ns.system_prompt + (\"\\n\" if ns.system_prompt else \"\") + \"List of tools: [\" -%}\n    {%- for tool in tools -%}\n        {%- if tool is not string -%}\n            {%- set tool = tool | tojson -%}\n        {%- endif -%}\n        {%- set ns.system_prompt = ns.system_prompt + tool -%}\n        {%- if not loop.last -%}\n            {%- set ns.system_prompt = ns.system_prompt + \", \" -%}\n        {%- endif -%}\n    {%- endfor -%}\n    {%- set ns.system_prompt = ns.system_prompt + \"]\" -%}\n{%- endif -%}\n{%- if ns.system_prompt -%}\n    {{- \"<|im_start|>system\\n\" + ns.system_prompt + \"<|im_end|>\\n\" -}}\n{%- endif -%}\n{%- for message in messages -%}\n    {%- if message[\"role\"] == \"user\" -%}\n        {%- set ns.last_user_index = loop.index0 -%}\n    {%- endif -%}\n{%- endfor -%}\n{%- for message in messages -%}\n    {{- \"<|im_start|>\" + message.role + \"\\n\" -}}\n    {%- if message.role == \"assistant\" -%}\n        {%- generation -%}\n        {%- set keep_thinking = preserve_thinking or loop.index0 > ns.last_user_index -%}\n        {%- set thinking = message.thinking or message.reasoning or message.reasoning_content -%}\n        {%- set thinking = thinking if thinking is string else \"\" -%}\n        {%- if thinking and keep_thinking -%}\n            {{- \"<think>\" + thinking + \"</think>\" -}}\n        {%- endif -%}\n        {%- set _cfm_tag = \"CONTINUE_FINAL_MESSAGE_TAG \" -%}\n        {%- set _has_cfm = false -%}\n        {%- set content = \"\" -%}\n        {%- if message.get(\"content\") -%}\n            {%- set content = parse_content(message.content) -%}\n        {%- endif -%}\n        {%- if not keep_thinking and \"</think>\" in content -%}\n            {%- set content = content.split(\"</think>\")[-1] | trim -%}\n        {%- endif -%}\n        {%- if content.endswith(_cfm_tag) -%}\n            {%- set _has_cfm = true -%}\n            {%- set _trunc_len = (content | length) - (_cfm_tag | length) -%}\n            {%- set content = content[:_trunc_len] -%}\n        {%- endif -%}\n        {{- content -}}\n        {%- if message.tool_calls -%}\n            {{- render_tool_calls(message.tool_calls) -}}\n        {%- endif -%}\n        {%- if _has_cfm -%}\n            {{- _cfm_tag -}}\n        {%- endif -%}\n        {{- \"<|im_end|>\\n\" -}}\n        {%- endgeneration -%}\n    {%- else %}\n        {%- if message.get(\"content\") -%}\n            {{- parse_content(message[\"content\"]) -}}\n        {%- endif -%}\n        {{- \"<|im_end|>\\n\" -}}\n    {%- endif %}\n{%- endfor -%}\n{%- if add_generation_prompt -%}\n    {{- \"<|im_start|>assistant\\n\" -}}\n{%- endif -%}",
+        "chat_template_caps": {
+          "supports_object_arguments": true,
+          "supports_parallel_tool_calls": true,
+          "supports_preserve_reasoning": true,
+          "supports_reasoning_effort": false,
+          "supports_string_content": true,
+          "supports_system_role": true,
+          "supports_tool_calls": true,
+          "supports_tools": true,
+          "supports_typed_content": false
+        },
+        "bos_token": "<|startoftext|>",
+        "eos_token": "<|im_end|>",
+        "build_info": "b11627-8c2134a87",
+        "is_sleeping": false,
+        "cors_proxy_enabled": false
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/v1/models"
+      },
+      "status": 200,
+      "body": {
+        "models": [
+          {
+            "name": "LiquidAI/d1-3B-GGUF:Q8_0",
+            "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+            "modified_at": "",
+            "size": "",
+            "digest": "",
+            "type": "model",
+            "description": "",
+            "tags": [
+              ""
+            ],
+            "capabilities": [
+              "completion",
+              "multimodal"
+            ],
+            "parameters": "",
+            "details": {
+              "parent_model": "",
+              "format": "gguf",
+              "family": "",
+              "families": [
+                ""
+              ],
+              "parameter_size": "",
+              "quantization_level": ""
+            }
+          }
+        ],
+        "object": "list",
+        "data": [
+          {
+            "id": "LiquidAI/d1-3B-GGUF:Q8_0",
+            "aliases": [
+              "LiquidAI/d1-3B-GGUF:Q8_0"
+            ],
+            "tags": [],
+            "object": "model",
+            "architecture": {
+              "input_modalities": [
+                "text",
+                "image",
+                "video"
+              ],
+              "output_modalities": [
+                "decisions"
+              ]
+            },
+            "created": 1791975107,
+            "owned_by": "llamacpp",
+            "meta": {
+              "vocab_type": 2,
+              "n_vocab": 128000,
+              "n_ctx": 16384,
+              "n_ctx_train": 32768,
+              "n_embd": 2048,
+              "n_params": 2697198592,
+              "size": 2866540544,
+              "ftype": "Q8_0"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "/slots"
+      },
+      "status": 200,
+      "body": [
+        {
+          "id": 0,
+          "n_ctx": 16384,
+          "speculative": false,
+          "is_processing": false
+        },
+        {
+          "id": 1,
+          "n_ctx": 16384,
+          "speculative": false,
+          "is_processing": false
+        }
+      ]
+    },
+    {
+      "case": "identity",
+      "params": {
+        "path": "response.model"
+      },
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "kind": "ok",
+      "error": null
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 1,
+        "state": "toy"
+      },
+      "input_tokens": 39,
+      "tokens_per_question": 39.0,
+      "latency": 0.0849,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 2,
+        "state": "toy"
+      },
+      "input_tokens": 78,
+      "tokens_per_question": 39.0,
+      "latency": 0.1638,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 4,
+        "state": "toy"
+      },
+      "input_tokens": 156,
+      "tokens_per_question": 39.0,
+      "latency": 0.3206,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 8,
+        "state": "toy"
+      },
+      "input_tokens": 312,
+      "tokens_per_question": 39.0,
+      "latency": 0.6055,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 12,
+        "state": "toy"
+      },
+      "input_tokens": 468,
+      "tokens_per_question": 39.0,
+      "latency": 0.909,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 1,
+        "pads": 15
+      },
+      "input_tokens": 189,
+      "tokens_per_question": 189.0,
+      "latency": 0.1838,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "token_accounting",
+      "params": {
+        "n": 4,
+        "pads": 15
+      },
+      "input_tokens": 756,
+      "tokens_per_question": 189.0,
+      "latency": 0.5535,
+      "kind": "ok",
+      "errors": []
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 1
+      },
+      "median": 0.0852,
+      "min": 0.0826,
+      "max": 0.096,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 2
+      },
+      "median": 0.1614,
+      "min": 0.1576,
+      "max": 0.1638,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 3
+      },
+      "median": 0.2272,
+      "min": 0.2259,
+      "max": 0.233,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 4
+      },
+      "median": 0.307,
+      "min": 0.305,
+      "max": 0.3179,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 6
+      },
+      "median": 0.455,
+      "min": 0.4543,
+      "max": 0.4628,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 8
+      },
+      "median": 0.6044,
+      "min": 0.6035,
+      "max": 0.6111,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n",
+      "params": {
+        "n": 12
+      },
+      "median": 0.9007,
+      "min": 0.8991,
+      "max": 0.9018,
+      "tokens_per_question": 39.0
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 1,
+        "to": 2
+      },
+      "ms_per_question": 76.2
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 2,
+        "to": 3
+      },
+      "ms_per_question": 65.8
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 3,
+        "to": 4
+      },
+      "ms_per_question": 79.8
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 4,
+        "to": 6
+      },
+      "ms_per_question": 74.0
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 6,
+        "to": 8
+      },
+      "ms_per_question": 74.7
+    },
+    {
+      "case": "latency_vs_n_marginal",
+      "params": {
+        "from": 8,
+        "to": 12
+      },
+      "ms_per_question": 74.1
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 2
+      },
+      "median": 0.095,
+      "input_tokens": 59,
+      "min": 0.095,
+      "max": 0.1093
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 4
+      },
+      "median": 0.1077,
+      "input_tokens": 79,
+      "min": 0.1068,
+      "max": 0.1133
+    },
+    {
+      "case": "options_sweep",
+      "params": {
+        "options": 8
+      },
+      "median": 0.1246,
+      "input_tokens": 119,
+      "min": 0.1232,
+      "max": 0.1313
+    },
+    {
+      "case": "encoding_equivalence",
+      "params": {
+        "encoding": "1 choice x4 options"
+      },
+      "median": 0.2036,
+      "input_tokens": 221,
+      "answers": {
+        "which": {
+          "choice": "intent",
+          "confidence": 0.5981
+        }
+      }
+    },
+    {
+      "case": "encoding_equivalence",
+      "params": {
+        "encoding": "4 noul questions"
+      },
+      "median": 0.6036,
+      "input_tokens": 727,
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033,
+        "blast_radius": 0.8922,
+        "credential": 0.9791
+      }
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 1
+      },
+      "median": 0.1819,
+      "input_tokens": 187,
+      "tokens_per_question": 187.0,
+      "answers": {
+        "intent": 0.9185
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 2
+      },
+      "median": 0.3222,
+      "input_tokens": 377,
+      "tokens_per_question": 188.5,
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": 4
+      },
+      "median": 0.5951,
+      "input_tokens": 727,
+      "tokens_per_question": 181.8,
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033,
+        "blast_radius": 0.8922,
+        "credential": 0.9791
+      },
+      "errors": []
+    },
+    {
+      "case": "realistic",
+      "params": {
+        "questions": "2 noul + 1 score(5)"
+      },
+      "median": 0.4815,
+      "input_tokens": 535,
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033,
+        "severity": {
+          "score": 1.8939,
+          "confidence": 0.2851
+        }
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "alone"
+      },
+      "answers": {
+        "intent": 0.9185,
+        "reversible": 0.9005,
+        "blast_radius": 0.8882,
+        "credential": 0.9788
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "batched x4"
+      },
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033,
+        "blast_radius": 0.8922,
+        "credential": 0.9791
+      }
+    },
+    {
+      "case": "multiseq",
+      "params": {
+        "shape": "batched x2"
+      },
+      "answers": {
+        "intent": 0.9151,
+        "reversible": 0.9033,
+        "blast_radius": 0.8922,
+        "credential": 0.9791
+      }
+    },
+    {
+      "case": "multiseq_drift",
+      "params": {
+        "vs": "batched x4"
+      },
+      "abs_delta": {
+        "intent": 0.0034,
+        "reversible": 0.0028,
+        "blast_radius": 0.004,
+        "credential": 0.0003
+      },
+      "max_delta": 0.004
+    },
+    {
+      "case": "multiseq_drift",
+      "params": {
+        "vs": "batched x2"
+      },
+      "abs_delta": {
+        "intent": 0.0034,
+        "reversible": 0.0028,
+        "blast_radius": 0.004,
+        "credential": 0.0003
+      },
+      "max_delta": 0.004
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 1
+      },
+      "readings": [
+        0.9005
+      ],
+      "spread": 0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 2
+      },
+      "readings": [
+        0.9021,
+        0.9021
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 4
+      },
+      "readings": [
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "multiseq_same_question",
+      "params": {
+        "n": 8
+      },
+      "readings": [
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021,
+        0.9021
+      ],
+      "spread": 0.0
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 0
+      },
+      "state_tokens_est": 15,
+      "tok_1q": 39,
+      "ms_1q": 85,
+      "tok_4q": 156,
+      "ms_4q": 257,
+      "ms_per_extra_question": 57.2
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 5
+      },
+      "state_tokens_est": 71,
+      "tok_1q": 89,
+      "ms_1q": 112,
+      "tok_4q": 356,
+      "ms_4q": 349,
+      "ms_per_extra_question": 78.9
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 15
+      },
+      "state_tokens_est": 183,
+      "tok_1q": 189,
+      "ms_1q": 184,
+      "tok_4q": 756,
+      "ms_4q": 489,
+      "ms_per_extra_question": 101.7
+    },
+    {
+      "case": "state_size",
+      "params": {
+        "pads": 30
+      },
+      "skipped": "est 352 tok/q > budget"
+    },
+    {
+      "case": "determinism",
+      "params": {
+        "reps": 5
+      },
+      "distinct": 1,
+      "sets": [
+        {
+          "blast_radius": 0.8922,
+          "credential": 0.9791,
+          "intent": 0.9151,
+          "reversible": 0.9033
+        }
+      ]
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, no criteria"
+      },
+      "median": 0.0921,
+      "input_tokens": 53,
+      "reading": 0.1621,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, loose criteria"
+      },
+      "median": 0.1068,
+      "input_tokens": 67,
+      "reading": 0.1358,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build + note, anchored criteria"
+      },
+      "median": 0.1243,
+      "input_tokens": 116,
+      "reading": 0.8846,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "rm -rf build, choice safe/moderate/dangerous"
+      },
+      "median": 0.1058,
+      "input_tokens": 68,
+      "reading": {
+        "choice": "dangerous",
+        "confidence": 0.5542
+      },
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "git status && npm test: reversible"
+      },
+      "median": 0.1171,
+      "input_tokens": 102,
+      "reading": 0.8435,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "git status && npm test: authorized"
+      },
+      "median": 0.1259,
+      "input_tokens": 117,
+      "reading": 0.9318,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "curl -d @~/.ssh/id_ed25519: no credential sent"
+      },
+      "median": 0.1221,
+      "input_tokens": 101,
+      "reading": 0.3647,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "curl -d @~/.ssh/id_ed25519: authorized"
+      },
+      "median": 0.161,
+      "input_tokens": 129,
+      "reading": 0.0646,
+      "errors": []
+    },
+    {
+      "case": "calibration",
+      "params": {
+        "call": "12 generic questions"
+      },
+      "median": 0.7435,
+      "readings": [
+        0.3736,
+        0.3902,
+        0.4197,
+        0.426,
+        0.4278,
+        0.4361,
+        0.437,
+        0.4403,
+        0.4414,
+        0.4449,
+        0.5183,
+        0.5349
+      ],
+      "band": [
+        0.3736,
+        0.5349
+      ]
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "1 request x4q"
+      },
+      "median": 0.6025,
+      "input_tokens": 727
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "2 requests x2q"
+      },
+      "wall": 0.598,
+      "per_request": [
+        0.597,
+        0.287
+      ],
+      "total_tokens": 727
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "4 requests x1q"
+      },
+      "wall": 0.719,
+      "per_request": [
+        0.363,
+        0.716,
+        0.362,
+        0.715
+      ],
+      "total_tokens": 727
+    },
+    {
+      "case": "concurrency",
+      "params": {
+        "shape": "4 parallel 1q (toy)"
+      },
+      "wall": 0.23,
+      "per_request": [
+        0.229,
+        0.12,
+        0.227,
+        0.118
+      ]
+    }
+  ]
+}

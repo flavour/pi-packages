@@ -1,0 +1,639 @@
+{
+  "meta": {
+    "label": "d1-3b-p2-envwide",
+    "started": "2026-10-14T14:52:00",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 2, -b 2048 -ub 512 (defaults), -c 32768 (16384/slot); extended env ramp to pads=220",
+    "identity_check": {
+      "model_expected": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true,
+      "slots_expected": 2,
+      "slots_ok": true,
+      "ubatch_expected": null,
+      "ubatch_ok": null
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": 16384,
+      "n_ctx_slot": 16384,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core",
+    "n_records": 58
+  },
+  "records": [
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 10
+      },
+      "kind": "ok",
+      "tokens_per_question": 139,
+      "latency": 0.183
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 14
+      },
+      "kind": "ok",
+      "tokens_per_question": 179,
+      "latency": 0.182
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 16
+      },
+      "kind": "ok",
+      "tokens_per_question": 199,
+      "latency": 0.198
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 20
+      },
+      "kind": "ok",
+      "tokens_per_question": 239,
+      "latency": 0.216
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 25
+      },
+      "kind": "ok",
+      "tokens_per_question": 289,
+      "latency": 2.339
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 30
+      },
+      "kind": "ok",
+      "tokens_per_question": 339,
+      "latency": 0.311
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 40
+      },
+      "kind": "ok",
+      "tokens_per_question": 439,
+      "latency": 0.379
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 50
+      },
+      "kind": "ok",
+      "tokens_per_question": 539,
+      "latency": 0.473
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 60
+      },
+      "kind": "ok",
+      "tokens_per_question": 639,
+      "latency": 0.529
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 80
+      },
+      "kind": "ok",
+      "tokens_per_question": 839,
+      "latency": 0.68
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 100
+      },
+      "kind": "ok",
+      "tokens_per_question": 1039,
+      "latency": 1.24
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 120
+      },
+      "kind": "ok",
+      "tokens_per_question": 1239,
+      "latency": 0.99
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 140
+      },
+      "kind": "ok",
+      "tokens_per_question": 1439,
+      "latency": 1.161
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 160
+      },
+      "kind": "ok",
+      "tokens_per_question": 1639,
+      "latency": 1.302
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 180
+      },
+      "kind": "ok",
+      "tokens_per_question": 1839,
+      "latency": 1.468
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 200
+      },
+      "kind": "ok",
+      "tokens_per_question": 2039,
+      "latency": 1.6
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 1,
+        "pads": 220
+      },
+      "kind": "ok",
+      "tokens_per_question": 2239,
+      "latency": 1.765
+    },
+    {
+      "case": "envelope_max_ok",
+      "params": {
+        "n": 1
+      },
+      "pads": 220,
+      "tokens_per_question": 2239
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 10
+      },
+      "kind": "ok",
+      "tokens_per_question": 139,
+      "latency": 0.232
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 14
+      },
+      "kind": "ok",
+      "tokens_per_question": 179,
+      "latency": 0.273
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 16
+      },
+      "kind": "ok",
+      "tokens_per_question": 199,
+      "latency": 2.342
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 20
+      },
+      "kind": "ok",
+      "tokens_per_question": 239,
+      "latency": 0.301
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 25
+      },
+      "kind": "ok",
+      "tokens_per_question": 289,
+      "latency": 0.358
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 30
+      },
+      "kind": "ok",
+      "tokens_per_question": 339,
+      "latency": 0.386
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 40
+      },
+      "kind": "ok",
+      "tokens_per_question": 439,
+      "latency": 0.471
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 50
+      },
+      "kind": "ok",
+      "tokens_per_question": 539,
+      "latency": 0.56
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 60
+      },
+      "kind": "ok",
+      "tokens_per_question": 639,
+      "latency": 0.617
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 80
+      },
+      "kind": "ok",
+      "tokens_per_question": 839,
+      "latency": 0.775
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 100
+      },
+      "kind": "ok",
+      "tokens_per_question": 1039,
+      "latency": 0.912
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 120
+      },
+      "kind": "ok",
+      "tokens_per_question": 1239,
+      "latency": 1.094
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 140
+      },
+      "kind": "ok",
+      "tokens_per_question": 1439,
+      "latency": 1.258
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 160
+      },
+      "kind": "ok",
+      "tokens_per_question": 1639,
+      "latency": 1.401
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 180
+      },
+      "kind": "ok",
+      "tokens_per_question": 1839,
+      "latency": 1.546
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 200
+      },
+      "kind": "ok",
+      "tokens_per_question": 2039,
+      "latency": 1.693
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 2,
+        "pads": 220
+      },
+      "kind": "ok",
+      "tokens_per_question": 2239,
+      "latency": 1.859
+    },
+    {
+      "case": "envelope_max_ok",
+      "params": {
+        "n": 2
+      },
+      "pads": 220,
+      "tokens_per_question": 2239
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 10
+      },
+      "kind": "ok",
+      "tokens_per_question": 139,
+      "latency": 0.45
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 14
+      },
+      "kind": "ok",
+      "tokens_per_question": 179,
+      "latency": 0.547
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 16
+      },
+      "kind": "ok",
+      "tokens_per_question": 199,
+      "latency": 0.551
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 20
+      },
+      "kind": "ok",
+      "tokens_per_question": 239,
+      "latency": 0.594
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 25
+      },
+      "kind": "ok",
+      "tokens_per_question": 289,
+      "latency": 0.714
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 30
+      },
+      "kind": "ok",
+      "tokens_per_question": 339,
+      "latency": 0.772
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 40
+      },
+      "kind": "ok",
+      "tokens_per_question": 439,
+      "latency": 0.932
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 50
+      },
+      "kind": "ok",
+      "tokens_per_question": 539,
+      "latency": 1.091
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 60
+      },
+      "kind": "ok",
+      "tokens_per_question": 639,
+      "latency": 1.216
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 80
+      },
+      "kind": "ok",
+      "tokens_per_question": 839,
+      "latency": 1.545
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 100
+      },
+      "kind": "ok",
+      "tokens_per_question": 1039,
+      "latency": 1.8
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 120
+      },
+      "kind": "ok",
+      "tokens_per_question": 1239,
+      "latency": 2.155
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 140
+      },
+      "kind": "ok",
+      "tokens_per_question": 1439,
+      "latency": 2.493
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 160
+      },
+      "kind": "ok",
+      "tokens_per_question": 1639,
+      "latency": 2.774
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 180
+      },
+      "kind": "ok",
+      "tokens_per_question": 1839,
+      "latency": 3.08
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 200
+      },
+      "kind": "ok",
+      "tokens_per_question": 2039,
+      "latency": 3.377
+    },
+    {
+      "case": "envelope",
+      "params": {
+        "n": 4,
+        "pads": 220
+      },
+      "kind": "ok",
+      "tokens_per_question": 2239,
+      "latency": 3.711
+    },
+    {
+      "case": "envelope_max_ok",
+      "params": {
+        "n": 4
+      },
+      "pads": 220,
+      "tokens_per_question": 2239
+    },
+    {
+      "case": "conversation_window",
+      "params": {
+        "turns": 0
+      },
+      "kind": "ok",
+      "input_tokens": 727,
+      "latency": 0.62,
+      "answers": {
+        "intent": 0.915,
+        "reversible": 0.906,
+        "blast_radius": 0.892,
+        "credential": 0.979
+      },
+      "error": null,
+      "recovered_in": null
+    },
+    {
+      "case": "conversation_window",
+      "params": {
+        "turns": 2
+      },
+      "kind": "ok",
+      "input_tokens": 1035,
+      "latency": 0.756,
+      "answers": {
+        "intent": 0.872,
+        "reversible": 0.903,
+        "blast_radius": 0.881,
+        "credential": 0.981
+      },
+      "error": null,
+      "recovered_in": null
+    },
+    {
+      "case": "conversation_window",
+      "params": {
+        "turns": 4
+      },
+      "kind": "ok",
+      "input_tokens": 1315,
+      "latency": 0.873,
+      "answers": {
+        "intent": 0.899,
+        "reversible": 0.901,
+        "blast_radius": 0.868,
+        "credential": 0.98
+      },
+      "error": null,
+      "recovered_in": null
+    },
+    {
+      "case": "conversation_window",
+      "params": {
+        "turns": 8
+      },
+      "kind": "ok",
+      "input_tokens": 1875,
+      "latency": 1.095,
+      "answers": {
+        "intent": 0.907,
+        "reversible": 0.894,
+        "blast_radius": 0.866,
+        "credential": 0.981
+      },
+      "error": null,
+      "recovered_in": null
+    }
+  ]
+}

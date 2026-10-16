@@ -1,0 +1,1084 @@
+{
+  "meta": {
+    "label": "d1-p4-share",
+    "started": "2026-10-14T15:41:15",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 4, -b 2048 -ub 512 (defaults), -c 32768 (8192/slot = n_ctx_train/4)",
+    "identity_check": {
+      "model_expected": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true,
+      "slots_expected": 4,
+      "slots_ok": true,
+      "ctx_slot_expected": 8192,
+      "ctx_slot_ok": true,
+      "ubatch_expected": null,
+      "ubatch_ok": null
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": 8192,
+      "n_ctx_slot": 8192,
+      "n_slots": 4,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core",
+    "n_records": 83
+  },
+  "records": [
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 1,
+        "cache": "warm"
+      },
+      "state_tokens_est": 15,
+      "median": 0.0833,
+      "min": 0.0782,
+      "max": 0.0842,
+      "input_tokens": 39,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 1,
+        "cache": "cold"
+      },
+      "state_tokens_est": 15,
+      "median": 0.0841,
+      "min": 0.0841,
+      "max": 0.0881,
+      "input_tokens": 48,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 2,
+        "cache": "warm"
+      },
+      "state_tokens_est": 15,
+      "median": 0.1262,
+      "min": 0.1261,
+      "max": 0.1439,
+      "input_tokens": 78,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 2,
+        "cache": "cold"
+      },
+      "state_tokens_est": 15,
+      "median": 0.1764,
+      "min": 0.1758,
+      "max": 0.183,
+      "input_tokens": 96,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 4,
+        "cache": "warm"
+      },
+      "state_tokens_est": 15,
+      "median": 0.2079,
+      "min": 0.1997,
+      "max": 2.2599,
+      "input_tokens": 156,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 4,
+        "cache": "cold"
+      },
+      "state_tokens_est": 15,
+      "median": 0.2228,
+      "min": 0.2224,
+      "max": 0.2274,
+      "input_tokens": 192,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 8,
+        "cache": "warm"
+      },
+      "state_tokens_est": 15,
+      "median": 0.3899,
+      "min": 0.389,
+      "max": 0.4001,
+      "input_tokens": 312,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 0,
+        "n": 8,
+        "cache": "cold"
+      },
+      "state_tokens_est": 15,
+      "median": 0.435,
+      "min": 0.4308,
+      "max": 0.439,
+      "input_tokens": 384,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "warm",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 42.9
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "warm",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 40.8
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "warm",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 45.5
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 0,
+        "cache": "warm",
+        "state_tokens_est": 15,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 2.5,
+      "verdict": "tail-dominated state: not informative"
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "cold",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 92.3
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "cold",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 23.2
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 0,
+        "cache": "cold",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 15
+      },
+      "ms_per_extra_question": 53.0
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 0,
+        "cache": "cold",
+        "state_tokens_est": 15,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 2.65,
+      "verdict": "tail-dominated state: not informative"
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 1,
+        "cache": "warm"
+      },
+      "state_tokens_est": 183,
+      "median": 0.2076,
+      "min": 0.1881,
+      "max": 2.2311,
+      "input_tokens": 189,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 1,
+        "cache": "cold"
+      },
+      "state_tokens_est": 183,
+      "median": 0.2024,
+      "min": 0.2017,
+      "max": 0.2126,
+      "input_tokens": 198,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 2,
+        "cache": "warm"
+      },
+      "state_tokens_est": 183,
+      "median": 0.2784,
+      "min": 0.273,
+      "max": 0.2846,
+      "input_tokens": 378,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 2,
+        "cache": "cold"
+      },
+      "state_tokens_est": 183,
+      "median": 0.2832,
+      "min": 0.282,
+      "max": 2.3399,
+      "input_tokens": 396,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 4,
+        "cache": "warm"
+      },
+      "state_tokens_est": 183,
+      "median": 0.3211,
+      "min": 0.3141,
+      "max": 0.3276,
+      "input_tokens": 756,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 4,
+        "cache": "cold"
+      },
+      "state_tokens_est": 183,
+      "median": 0.3209,
+      "min": 0.3154,
+      "max": 0.3228,
+      "input_tokens": 792,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 8,
+        "cache": "warm"
+      },
+      "state_tokens_est": 183,
+      "median": 0.6207,
+      "min": 0.6196,
+      "max": 0.6353,
+      "input_tokens": 1512,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 15,
+        "n": 8,
+        "cache": "cold"
+      },
+      "state_tokens_est": 183,
+      "median": 0.6299,
+      "min": 0.6215,
+      "max": 0.631,
+      "input_tokens": 1584,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "warm",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 70.8
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "warm",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 21.4
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "warm",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 74.9
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 15,
+        "cache": "warm",
+        "state_tokens_est": 183,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.55,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "cold",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 80.8
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "cold",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 18.9
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 15,
+        "cache": "cold",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 183
+      },
+      "ms_per_extra_question": 77.2
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 15,
+        "cache": "cold",
+        "state_tokens_est": 183,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.59,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 1,
+        "cache": "warm"
+      },
+      "state_tokens_est": 465,
+      "median": 0.3734,
+      "min": 0.373,
+      "max": 0.3788,
+      "input_tokens": 439,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 1,
+        "cache": "cold"
+      },
+      "state_tokens_est": 465,
+      "median": 0.3865,
+      "min": 0.3831,
+      "max": 1.3193,
+      "input_tokens": 448,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 2,
+        "cache": "warm"
+      },
+      "state_tokens_est": 465,
+      "median": 0.4707,
+      "min": 0.4666,
+      "max": 2.5447,
+      "input_tokens": 878,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 2,
+        "cache": "cold"
+      },
+      "state_tokens_est": 465,
+      "median": 0.4787,
+      "min": 0.4783,
+      "max": 0.4825,
+      "input_tokens": 896,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 4,
+        "cache": "warm"
+      },
+      "state_tokens_est": 465,
+      "median": 0.5224,
+      "min": 0.5143,
+      "max": 0.5809,
+      "input_tokens": 1756,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 4,
+        "cache": "cold"
+      },
+      "state_tokens_est": 465,
+      "median": 0.5199,
+      "min": 0.5194,
+      "max": 0.525,
+      "input_tokens": 1792,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 8,
+        "cache": "warm"
+      },
+      "state_tokens_est": 465,
+      "median": 1.0247,
+      "min": 1.0241,
+      "max": 1.0288,
+      "input_tokens": 3512,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 40,
+        "n": 8,
+        "cache": "cold"
+      },
+      "state_tokens_est": 465,
+      "median": 1.0356,
+      "min": 1.0275,
+      "max": 1.0398,
+      "input_tokens": 3584,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "warm",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 97.3
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "warm",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 25.8
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "warm",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 125.6
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 40,
+        "cache": "warm",
+        "state_tokens_est": 465,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.4,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "cold",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 92.2
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "cold",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 20.6
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 40,
+        "cache": "cold",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 465
+      },
+      "ms_per_extra_question": 128.9
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 40,
+        "cache": "cold",
+        "state_tokens_est": 465,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.35,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 1,
+        "cache": "warm"
+      },
+      "state_tokens_est": 915,
+      "median": 0.6803,
+      "min": 0.68,
+      "max": 0.6962,
+      "input_tokens": 839,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 1,
+        "cache": "cold"
+      },
+      "state_tokens_est": 915,
+      "median": 0.6931,
+      "min": 0.6909,
+      "max": 0.698,
+      "input_tokens": 848,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 2,
+        "cache": "warm"
+      },
+      "state_tokens_est": 915,
+      "median": 0.7755,
+      "min": 0.775,
+      "max": 0.7944,
+      "input_tokens": 1678,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 2,
+        "cache": "cold"
+      },
+      "state_tokens_est": 915,
+      "median": 0.7846,
+      "min": 0.7823,
+      "max": 0.7975,
+      "input_tokens": 1696,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 4,
+        "cache": "warm"
+      },
+      "state_tokens_est": 915,
+      "median": 0.8254,
+      "min": 0.8247,
+      "max": 0.8322,
+      "input_tokens": 3356,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 4,
+        "cache": "cold"
+      },
+      "state_tokens_est": 915,
+      "median": 0.8271,
+      "min": 0.8263,
+      "max": 0.8273,
+      "input_tokens": 3392,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 8,
+        "cache": "warm"
+      },
+      "state_tokens_est": 915,
+      "median": 1.6394,
+      "min": 1.6388,
+      "max": 1.6415,
+      "input_tokens": 6712,
+      "errors": []
+    },
+    {
+      "case": "sharing",
+      "params": {
+        "pads": 80,
+        "n": 8,
+        "cache": "cold"
+      },
+      "state_tokens_est": 915,
+      "median": 1.634,
+      "min": 1.6115,
+      "max": 1.646,
+      "input_tokens": 6784,
+      "errors": []
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "warm",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 95.2
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "warm",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 25.0
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "warm",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 203.5
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 80,
+        "cache": "warm",
+        "state_tokens_est": 915,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.21,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "cold",
+        "from": 1,
+        "to": 2,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 91.5
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "cold",
+        "from": 2,
+        "to": 4,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 21.2
+    },
+    {
+      "case": "sharing_marginal",
+      "params": {
+        "pads": 80,
+        "cache": "cold",
+        "from": 4,
+        "to": 8,
+        "state_tokens_est": 915
+      },
+      "ms_per_extra_question": 201.7
+    },
+    {
+      "case": "sharing_factor",
+      "params": {
+        "pads": 80,
+        "cache": "cold",
+        "state_tokens_est": 915,
+        "n": 4,
+        "n_slots": 4,
+        "floor": 1
+      },
+      "latency_ratio": 1.19,
+      "verdict": "partial (batched pass or partial sharing)"
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 1,
+        "slot": 3,
+        "id_task": 2812
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 1
+      },
+      "n_slot_tasks": 1,
+      "n_inheriting": 0,
+      "prefix_tokens": 0,
+      "prompt_tokens": 656,
+      "inherited_tokens": 0,
+      "computed_tokens": 656,
+      "reported_input_tokens": 656,
+      "compute_saved_pct": 0.0,
+      "verdict": "no inherited prefix sampled this rep (children finish fast)",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 2,
+        "slot": 0,
+        "id_task": 2896
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 440
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 2,
+        "slot": 3,
+        "id_task": 2895
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 440,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 2
+      },
+      "n_slot_tasks": 2,
+      "n_inheriting": 1,
+      "prefix_tokens": 440,
+      "prompt_tokens": 1312,
+      "inherited_tokens": 440,
+      "computed_tokens": 872,
+      "reported_input_tokens": 1312,
+      "compute_saved_pct": 33.5,
+      "verdict": "shared prefix confirmed: 1/2 tasks inherited 440 tok instead of re-reading it",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 3,
+        "id_task": 2940
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 440
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 1,
+        "id_task": 2939
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 440
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 0,
+        "id_task": 2938
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 440
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 2,
+        "id_task": 2937
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 440,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 4
+      },
+      "n_slot_tasks": 4,
+      "n_inheriting": 3,
+      "prefix_tokens": 440,
+      "prompt_tokens": 2624,
+      "inherited_tokens": 1320,
+      "computed_tokens": 1304,
+      "reported_input_tokens": 2624,
+      "compute_saved_pct": 50.3,
+      "verdict": "shared prefix confirmed: 3/4 tasks inherited 440 tok instead of re-reading it",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 3,
+        "id_task": 3078
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 0,
+      "cached_tokens": 439
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3077
+      },
+      "prompt_tokens": 439,
+      "processed_tokens": 0,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3076
+      },
+      "prompt_tokens": 439,
+      "processed_tokens": 0,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 2,
+        "id_task": 3075
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 439,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 3,
+        "id_task": 3074
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 0,
+      "cached_tokens": 439
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3073
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 0,
+      "cached_tokens": 439
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3072
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 0,
+      "cached_tokens": 439
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 2,
+        "id_task": 3071
+      },
+      "prompt_tokens": 655,
+      "processed_tokens": 439,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 8
+      },
+      "n_slot_tasks": 8,
+      "n_inheriting": 4,
+      "prefix_tokens": 439,
+      "prompt_tokens": 4808,
+      "inherited_tokens": 1756,
+      "computed_tokens": 3052,
+      "reported_input_tokens": 5240,
+      "compute_saved_pct": 36.5,
+      "verdict": "shared prefix confirmed: 4/8 tasks inherited 439 tok instead of re-reading it",
+      "error": null
+    }
+  ]
+}

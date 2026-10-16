@@ -1,0 +1,266 @@
+{
+  "meta": {
+    "label": "d1-3b-p2-slots",
+    "started": "2026-10-14T13:42:11",
+    "url": "http://jetson:9931",
+    "reps": 5,
+    "machine": "Jetson Orin NX 16GB, JetPack 7.2.1",
+    "stack": "llama.cpp llama-server",
+    "revision": "8c2134a8755d8a9792af513dab20282affe903e4",
+    "notes": "--parallel 2, default -b 2048 / -ub 512, n_ctx 16384 per slot (-c 32768); shared state ~441 tok, question tail ~200 tok",
+    "identity_check": {
+      "model_expected": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "model_ok": true,
+      "revision_expected": "8c2134a8755d8a9792af513dab20282affe903e4",
+      "revision_ok": true,
+      "slots_expected": 2,
+      "slots_ok": true,
+      "ubatch_expected": null,
+      "ubatch_ok": null
+    },
+    "max_per_question_tokens": 200,
+    "text_version": "2026-10-13.1",
+    "identity": {
+      "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+      "build_info": "b11627-8c2134a87",
+      "n_ctx": 16384,
+      "n_ctx_slot": 16384,
+      "n_slots": 2,
+      "model_path": "/home/fran/.cache/huggingface/hub/models--LiquidAI--d1-3B-GGUF/snapshots/bb1e436ea78eb96a3f1acb6da865f70c2fbeb563/d1-3B-Q8_0.gguf"
+    },
+    "crashes": [],
+    "suite": "core",
+    "n_records": 19
+  },
+  "records": [
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 1,
+        "slot": 1,
+        "id_task": 2820
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 1
+      },
+      "n_slot_tasks": 1,
+      "n_inheriting": 0,
+      "prefix_tokens": 0,
+      "prompt_tokens": 657,
+      "inherited_tokens": 0,
+      "computed_tokens": 657,
+      "reported_input_tokens": 657,
+      "compute_saved_pct": 0.0,
+      "verdict": "no inherited prefix sampled this rep (children finish fast)",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 2,
+        "slot": 0,
+        "id_task": 2877
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 441
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 2,
+        "slot": 1,
+        "id_task": 2875
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 441,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 2
+      },
+      "n_slot_tasks": 2,
+      "n_inheriting": 1,
+      "prefix_tokens": 441,
+      "prompt_tokens": 1314,
+      "inherited_tokens": 441,
+      "computed_tokens": 873,
+      "reported_input_tokens": 1314,
+      "compute_saved_pct": 33.6,
+      "verdict": "shared prefix confirmed: 1/2 tasks inherited 441 tok instead of re-reading it",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 0,
+        "id_task": 3068
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 0,
+      "cached_tokens": 440
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 1,
+        "id_task": 3067
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 440,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 0,
+        "id_task": 3066
+      },
+      "prompt_tokens": 440,
+      "processed_tokens": 0,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 4,
+        "slot": 1,
+        "id_task": 3064
+      },
+      "prompt_tokens": 656,
+      "processed_tokens": 440,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 4
+      },
+      "n_slot_tasks": 4,
+      "n_inheriting": 1,
+      "prefix_tokens": 440,
+      "prompt_tokens": 2408,
+      "inherited_tokens": 440,
+      "computed_tokens": 1968,
+      "reported_input_tokens": 2624,
+      "compute_saved_pct": 18.3,
+      "verdict": "shared prefix confirmed: 1/4 tasks inherited 440 tok instead of re-reading it",
+      "error": null
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3209
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 441
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3208
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 441,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3207
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 441
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3206
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 441,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3205
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 441
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3204
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 441,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 0,
+        "id_task": 3203
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 0,
+      "cached_tokens": 441
+    },
+    {
+      "case": "slot_counters",
+      "params": {
+        "n": 8,
+        "slot": 1,
+        "id_task": 3202
+      },
+      "prompt_tokens": 657,
+      "processed_tokens": 441,
+      "cached_tokens": 0
+    },
+    {
+      "case": "slot_counters_summary",
+      "params": {
+        "n": 8
+      },
+      "n_slot_tasks": 8,
+      "n_inheriting": 4,
+      "prefix_tokens": 441,
+      "prompt_tokens": 5256,
+      "inherited_tokens": 1764,
+      "computed_tokens": 3492,
+      "reported_input_tokens": 5256,
+      "compute_saved_pct": 33.6,
+      "verdict": "shared prefix confirmed: 4/8 tasks inherited 441 tok instead of re-reading it",
+      "error": null
+    }
+  ]
+}
