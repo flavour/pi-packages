@@ -1,0 +1,12 @@
+{
+  "extends": "../../tsconfig.base.json",
+  "compilerOptions": {
+    "types": ["node", "vitest/globals"],
+    "allowImportingTsExtensions": true,
+    "paths": {
+      "#src/*": ["./src/*"],
+      "#test/*": ["./test/*"]
+    }
+  },
+  "include": ["src", "test", "scripts", "vitest.config.ts"]
+}
