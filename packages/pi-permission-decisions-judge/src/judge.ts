@@ -44,10 +44,31 @@ export interface JudgeDeps {
 
 interface LogFields {
   requestId: string;
-  surface: string;
+  /** The gate family judged, or `null` when the ask carried no family fact. */
+  surface: string | null;
+  /** The hub's review origin — `tool_call` / `skill_input` / `skill_read`. */
+  source: string;
   tool?: string;
   command?: string;
   [key: string]: unknown;
+}
+
+/**
+ * The gate family an ask belongs to — what this link's `surfaces` config lists,
+ * and what the hub's bounded-delegation checkpoint excludes a link's `allow` on.
+ *
+ * `accessIntent.surface` is that family, stamped by the raising gate on every
+ * ask. `details.surface` is a different fact and appears only on a forwarded
+ * ask: the child's *display* surface, the tool name its UI showed
+ * (`forwarded-request-server.ts` keeps display and fact surfaces distinct on
+ * purpose). Reading it first would judge a chain the hub reads as `bash` under
+ * whatever the child happened to call the tool, and so disagree with the
+ * checkpoint's own cap. `details.source` is a review origin, never a family, so
+ * it is no fallback either — an ask with no family fact is one this link cannot
+ * scope.
+ */
+function askFamily(details: PromptPermissionDetails): string | undefined {
+  return details.accessIntent?.surface ?? details.surface ?? undefined;
 }
 
 /** The full tool arguments for `toolCallId`, recovered from session entries. */
@@ -92,9 +113,11 @@ export function createDecisionsJudge(deps: JudgeDeps): Authorizer["authorize"] {
     log: AuthorizerLog,
   ) => {
     const config = deps.getConfig();
+    const family = askFamily(details);
     const base: LogFields = {
       requestId: details.requestId,
-      surface: details.surface ?? details.source,
+      surface: family ?? null,
+      source: details.source,
       tool: details.toolName,
     };
 
@@ -106,7 +129,7 @@ export function createDecisionsJudge(deps: JudgeDeps): Authorizer["authorize"] {
     if (!config) {
       return defer("no_config");
     }
-    if (!config.surfaces.includes(base.surface)) {
+    if (family === undefined || !config.surfaces.includes(family)) {
       return defer("surface_not_configured", { surfaces: config.surfaces });
     }
 
@@ -128,7 +151,8 @@ export function createDecisionsJudge(deps: JudgeDeps): Authorizer["authorize"] {
     }
 
     const built = buildState({
-      toolName: details.toolName ?? base.surface,
+      // `family` is defined here: the gate above defers without one.
+      toolName: details.toolName ?? family,
       command,
       cwd: deps.getCwd(),
       latestUserMessage: deps.getLatestUserMessage(),

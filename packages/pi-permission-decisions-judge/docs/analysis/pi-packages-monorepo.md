@@ -74,6 +74,10 @@ Four things in it change our design:
 plus "secret-shaped path always excluded" — hardcoded, not configurable.
 So the coverage knob (D-04) has a documented shape, and the surface scoping we wanted is a config line, not a feature.
 
+> **Corrected 2026-11-04:** that is what ADR 0007 §5 *proposes*; the hub never shipped it.
+> Hub plan `docs/plans/0599-register-authorizer-seam.md:42` lists a configurable `modelDelegation` block as an explicit Non-Goal, and the string is absent from the hub's config schema at 42.0.0.
+> The surface scoping is therefore **our** feature, not a config line — which is why this package has a `surfaces` list and why D-04's scoping stays ours to build.
+
 **b.**
 **The config split is deliberate**: "This package declares and *enforces* the safety policy; the downstream extension declares and *uses* the model mechanism."
 Two independent config files joined only by the link name, no merged schema.

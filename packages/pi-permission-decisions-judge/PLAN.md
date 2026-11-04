@@ -57,6 +57,8 @@ The hub owns the UI and the log (D-01, D-08); what we owe is that enabling this 
 
 - [ ] Startup chain report: is the link registered, is it named in `authorizerChain`, is its surface in `modelDelegation.allowedSurfaces`, and which other links are registered ahead of it (D-10)?
       A chain link that silently never runs is the failure mode that looks like "the judge is lenient".
+      *Corrected 2026-11-04:* drop the `modelDelegation.allowedSurfaces` clause from this report — the hub never shipped that block (plan 0599 lists it as a Non-Goal; SPEC §5).
+      The report answers: registered, named in `authorizerChain`, and which `surfaces` entries this link will actually match against the hub's stamped family.
 - [ ] Surface-mismatch warning: registering on `path` or `external_directory` produces defers by the hub's bounded-delegation checkpoint (D-09), so it must be reported as no coverage rather than mistaken for it.
 - [ ] Resolve the unwritten posture on an unparseable config file: today it is reported and treated as no config; decide whether that is loud enough, and test that it never silently disables a configured link.
 - [ ] Generate the config JSON Schema from the zod source (`scripts/generate-schema.ts` → `schemas/*.schema.json`), the sibling packages' pattern (SPEC §17-7), and decide whether a pre-commit hook enforces regeneration.

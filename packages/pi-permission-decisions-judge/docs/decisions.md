@@ -124,7 +124,9 @@ This is also why the first-party `model-judge` link is deny-only.
 **Consequences:** SPEC §7/§8 must stop claiming the model approves writes.
 A path question (`path_not_protected`) can still exist as **evidence shown to the human**, but it can never change an outcome by itself — so it must not be part of the allow score.
 Expect our link to spend a large fraction of its calls returning `defer`; that is the designed shape, not a failure.
-**Source:** `docs/configuration.md` §Authorizer chain.
+**Amended 2026-11-04 (hub 41.0.0):** the checkpoint now honors one licensed case — an `external_directory`-family bash ask whose `accessIntent.delegationLicense` is `"nothing-on-disk"`, a fact the asking gate computed, is allowed through and logged `authorizer_allow_licensed`; a `write` outside a delegation envelope has no license and stays capped.
+The cap is tested on the family named by `accessIntent.surface`, so D-30's read is the same fact the checkpoint excludes on.
+**Source:** `docs/configuration.md` §Authorizer chain; hub `src/authority/delegation-envelope.ts`.
 
 ---
 
@@ -172,7 +174,7 @@ Their issue-driven flow (`/plan-issue` → `/tdd-plan` → pre-completion review
 There is no "deny-only milestone" — a link that cannot approve is not the product.
 **Why:** user instruction — "I am not OK for the Decisions Model not to be able to Allow."
 ADR 0007 §6's capability gradient is accepted as a **risk description, not a schedule**: it names the failure mode of an allow-capable judge as **decomposition infidelity** (`bash -c "safe; evil"` allowed on the safe piece alone) and states the safety property holds only if decomposition is faithful.
-**Consequences:** the slice-2 envelope is therefore **M1 scope, not deferred**: hard exclusions, attribution of the deciding origin, non-persistence of an allow, and an operator-scoped blast radius (`modelDelegation.allowedSurfaces`, initially `["bash"]`).
+**Consequences:** the slice-2 envelope is therefore **M1 scope, not deferred**: hard exclusions, attribution of the deciding origin, non-persistence of an allow, and an operator-scoped blast radius — which in the shipped hub is the bounded-delegation envelope (D-09) plus our own `surfaces` list, not a hub surface allowlist (SPEC §5).
 Their "off by default" posture is honoured a different way: the package is opt-in by naming it in `authorizerChain` (their invariant 3 — registration alone grants no authority) and its surface scope is a separate explicit config line, so turning it on is two deliberate edits, not a default.
 D-16 is what makes the allow path defensible at 3B scale.
 **Source:** user instruction (Q18); ADR 0007 §6.
@@ -223,10 +225,41 @@ The offline endpoint mock stays, because exercising the client with no network i
 
 ---
 
+## D-30 — The operator's `surfaces` list matches the gate family on `accessIntent.surface`, never `details.surface` or `details.source`
+
+**Status:** accepted (2026-11-04).
+**Decision:** the family an ask belongs to is read as `details.accessIntent?.surface ?? details.surface`; when neither is present the ask is unjudgeable and defers.
+`details.source` is never a family.
+Logged as `surface`, with `source` logged beside it.
+**Why:** the hub's raising gates stamp the family on `accessIntent.surface` — each builds `promptDetails` through `accessFactsFromValue`/`accessFactsFromPath` — and a **local ask carries no `surface` field at all**.
+`details.source` is a review origin (`tool_call` / `skill_input` / `skill_read`), so `details.surface ?? details.source` resolved to an origin for every local ask and matched no configured family: the link deferred on every ask in a real session while every unit test passed, because the fixtures set `surface` themselves.
+`details.surface` appears only on a forwarded ask and is the child's *display* surface — `buildForwardedAskDetails` keeps display and fact surfaces distinct on purpose — so reading it first judges a chain the hub's checkpoint reads as `bash` under whatever the child called the tool, and the link's self-cap and the hub's cap come apart.
+`pi-permission-model-judge` already reads the family this way (`typo-reviewer.ts`).
+**Consequences:** `test/fixtures/permission-details.ts` is the only place a test learns an ask's shape, and it is copied from the hub's own gate output rather than written from assumption — `describeToolGate` for a local ask, `buildForwardedAskDetails` plus `buildForwardedAskPayload` for a child's, including the version-skew case where a forwarded ask carries no `accessIntent` at all and must defer on the display surface rather than fall through to it.
+`scripts/live-check.ts` uses the same fixture, so the live probe exercises the real shape too.
+`payload.request.surface` (the forwarded `PromptRequestFacts`) names the child's own gate surface and is a possible second source; `accessIntent` stays what we read because every local gate stamps it and the hub's bounded-delegation checkpoint excludes on it.
+
+---
+
+## D-31 — A project config is read only on a trusted project, at the hub's path
+
+**Status:** accepted (2026-11-04).
+**Decision:** the project layer moves from `<cwd>/.pi/pi-permission-decisions-judge.json` to `<cwd>/.pi/extensions/pi-permission-decisions-judge/config.json`, read only when `ctx.isProjectTrusted()`; a file skipped that way is named at session start, over `ctx.ui.notify(…, "warning")` when the session has a UI.
+**Why:** this config is not cosmetic — `endpoint.baseUrl` chooses the host that receives the user's prompt and the command under judgment (`state.ts` masks shapes, not meaning), and `thresholds.allow: 0` turns every reading into an `allow`.
+A checkout that can write inside its own `.pi/` picks both the destination and the bar.
+The hub and `pi-permission-model-judge` gate the same way (#1092), and the flat filename was a third path convention in one repository — the way an operator ends up with a project config that is silently not the file being read.
+`console.warn` is not a channel in a TUI session; the model-judge moved to a UI notification in `3a6177ac` for the same reason.
+**Consequences:** nothing to migrate — the package is unreleased (`private: true`), so no operator has a file at the old path.
+An untrusted project that ships a config now gets a notification naming the file instead of a link that quietly inherits the global endpoint.
+
+---
+
 ## Open questions (not decisions yet)
 
 1. **Own floor vs none** — under D-04, do we keep any hard-deny patterns of our own, given the hub already fails closed on unparseable bash and denies through symlink-resolved paths?
    *Update 2026-10-15:* the hub's `modelDelegation.excludedSurfaces` plus "secret-shaped path always excluded" is a documented knob for exactly this; the answer is probably "no floor, one config line".
+   *Corrected 2026-11-04:* that knob does not exist in the shipped hub — plan 0599 lists a configurable `modelDelegation` block as a Non-Goal, and the string is absent from the hub's config schema at 42.0.0 (SPEC §5).
+   What bounds our reach is the bounded-delegation envelope (D-09) plus our own `surfaces` list, so this question has no one-line answer and stays open.
 2. **Redaction channel** — the hub masks only name-bound values and refuses shape-guessing with measured reasoning (ADR 0010: heredoc masking gave "six false positives and no true ones").
    Our outbound state plan masks shape.
    Different channels (local `0600` log vs a request to a LAN server whose logs we do not control) — needs a per-channel rule, not one global stance.

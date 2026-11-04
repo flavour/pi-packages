@@ -11,13 +11,13 @@ import { readFileSync } from "node:fs";
 import type {
   AuthorizerLog,
   PermissionQuery,
-  PromptPermissionDetails,
 } from "@gotgenes/pi-permission-system";
 import {
   type DecisionsJudgeConfig,
   decisionsJudgeConfigSchema,
 } from "#src/config.ts";
 import { createDecisionsJudge } from "#src/judge.ts";
+import { makeBashAsk } from "#test/fixtures/permission-details.ts";
 
 interface Scenario {
   command: string;
@@ -132,15 +132,13 @@ async function main(): Promise<void> {
       },
       debug: () => {},
     };
-    const details = {
+    // The same ask shape the hub hands a chain link — no `surface` field on a
+    // local ask, the gate family on `accessIntent.surface`, `source` a review
+    // origin. A scenario built any other way drifts from what a session does.
+    const details = makeBashAsk({
       requestId: `live-${scenario.command.slice(0, 12)}`,
-      source: "bash",
-      agentName: null,
-      payload: {},
-      surface: "bash",
-      toolName: "bash",
       command: scenario.command,
-    } as unknown as PromptPermissionDetails;
+    });
 
     const started = Date.now();
     const verdict = await authorize(details, query, log);

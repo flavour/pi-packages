@@ -12,6 +12,7 @@
 
 import {
   type ExtensionAPI,
+  type ExtensionContext,
   getAgentDir,
 } from "@earendil-works/pi-coding-agent";
 import type { PermissionsReadyEvent } from "@gotgenes/pi-permission-system";
@@ -22,6 +23,9 @@ import {
 
 import {
   EXTENSION_ID,
+  getGlobalConfigPath,
+  LINK_NAME,
+  type LoadConfigOptions,
   type LoadConfigResult,
   loadDecisionsJudgeConfig,
 } from "./config.ts";
@@ -29,12 +33,29 @@ import { createDecisionsJudge, type SessionEntriesReader } from "./judge.ts";
 import type { Transport } from "./systemone.ts";
 
 export interface DecisionsJudgeDependencies {
-  loadConfig?: (cwd: string) => LoadConfigResult;
+  /** Seam for tests: the loader also answers whether the project may be read. */
+  loadConfig?: (options: LoadConfigOptions) => LoadConfigResult;
   transport?: Transport;
 }
 
 function warn(message: string): void {
   console.warn(`[${EXTENSION_ID}] ${message}`);
+}
+
+/**
+ * Surface a config problem where the operator will see it.
+ *
+ * These warnings fire at session start, before any prompt exists, so in a TUI
+ * session a stdout write reaches nothing the operator looks at — the
+ * notification is the only channel that lands. With no UI, stderr is the sink.
+ * Same rule `pi-permission-model-judge` applies.
+ */
+function reportWarning(ctx: ExtensionContext, message: string): void {
+  if (ctx.hasUI) {
+    ctx.ui.notify(message, "warning");
+    return;
+  }
+  warn(message);
 }
 
 export function createDecisionsJudgeExtension(
@@ -43,10 +64,10 @@ export function createDecisionsJudgeExtension(
 ): void {
   const loadConfig =
     dependencies.loadConfig ??
-    ((cwd: string) =>
-      loadDecisionsJudgeConfig({ cwd, agentDir: getAgentDir() }));
+    ((options: LoadConfigOptions) => loadDecisionsJudgeConfig(options));
 
   let config: LoadConfigResult["config"];
+  let sessionCtx: ExtensionContext | undefined;
   let sessionManager: SessionEntriesReader | undefined;
   let cwd = process.cwd();
   let latestUserMessage: string | undefined;
@@ -54,14 +75,26 @@ export function createDecisionsJudgeExtension(
   let warnedUnresolvedService = false;
 
   pi.on("session_start", (_event, ctx) => {
+    sessionCtx = ctx;
     cwd = ctx.cwd;
     sessionManager = ctx.sessionManager;
     latestUserMessage = undefined;
-    const result = loadConfig(ctx.cwd);
+    const result = loadConfig({
+      cwd: ctx.cwd,
+      agentDir: getAgentDir(),
+      projectTrusted: ctx.isProjectTrusted(),
+    });
     config = result.config;
     for (const issue of result.issues) {
-      warn(
+      reportWarning(
+        ctx,
         `config issue at ${issue.sourcePath} — ${issue.path}: ${issue.message}`,
+      );
+    }
+    if (result.untrustedProjectConfigPath) {
+      reportWarning(
+        ctx,
+        `the project config at ${result.untrustedProjectConfigPath} was skipped because the project is untrusted — a project config chooses the endpoint that receives your prompt and the command under judgment. Trust this project, or move it to ${getGlobalConfigPath(getAgentDir())}.`,
       );
     }
   });
@@ -85,9 +118,10 @@ export function createDecisionsJudgeExtension(
     const service =
       sessionId === null ? undefined : getPermissionsService(sessionId);
     if (!service) {
-      if (!warnedUnresolvedService) {
+      if (!warnedUnresolvedService && sessionCtx) {
         warnedUnresolvedService = true;
-        warn(
+        reportWarning(
+          sessionCtx,
           "this session's node published no permission service, so the decisions-judge link is not registered — @gotgenes/pi-permission-system must be loaded in the same session.",
         );
       }
@@ -100,21 +134,19 @@ export function createDecisionsJudgeExtension(
       getSessionManager: () => sessionManager,
       transport: dependencies.transport,
     });
-    dispose = service.registerAuthorizer(EXTENSION_LINK_NAME, authorize);
+    dispose = service.registerAuthorizer(LINK_NAME, authorize);
   });
 
   pi.on("session_shutdown", () => {
     dispose?.();
     dispose = undefined;
     config = undefined;
+    sessionCtx = undefined;
     sessionManager = undefined;
     latestUserMessage = undefined;
     warnedUnresolvedService = false;
   });
 }
-
-/** The operator-facing chain-link name referenced from `authorizerChain`. */
-export const EXTENSION_LINK_NAME = "decisions-judge";
 
 /** The payload's session id, or `null` for any shape that cannot key the locator. */
 function readySessionId(data: unknown): string | null {
