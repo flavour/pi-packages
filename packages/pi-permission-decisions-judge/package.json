@@ -44,7 +44,7 @@
   },
   "devDependencies": {
     "@earendil-works/pi-coding-agent": "1.0.0",
-    "@gotgenes/pi-permission-system": "40.3.0",
+    "@gotgenes/pi-permission-system": "42.0.0",
     "@types/node": "catalog:",
     "rumdl": "catalog:",
     "typescript": "catalog:",

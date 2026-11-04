@@ -39,20 +39,20 @@ It emits no rules, enforces no policy of the hub's, and never denies on a techni
 
 ## 3. Terminology
 
-| Term              | Meaning                                                                                               |
-| ----------------- | ----------------------------------------------------------------------------------------------------- |
-| **ask**           | The permission question the hub raises (`PromptPermissionDetails`), with a `requestId` and a surface. |
-| **surface**       | What kind of ask it is: `bash`, `tool`, `path`, `external_directory`, directional read/write.         |
-| **link**          | An `authorize` callback registered with the hub's `authorizerChain`.                                  |
-| **verdict**       | `allow` · `deny(reason)` · `defer` — the three things a link may answer an ask with.                  |
-| **reading**       | One per-question probability returned by the decision model.                                          |
-| **scored / veto** | A scored question combines in the min-rule; a veto question can block an `allow` alone (D-24).        |
-| **polarity**      | Whether a high reading is safe or unsafe, declared per question (`unsafeWhenHigh`).                   |
-| **floor**         | A shape this link refuses to **approve**, whatever the model reads (D-25).                            |
-| **opaque shape**  | A call whose full effect is not visible in the command text, so no reading about it is trustworthy.   |
-| **state**         | The `{value, context}` object sent with the questions — the cost driver of a request.                 |
-| **dry run**       | Run the whole pipeline, log the readings and the would-be verdict, then `defer`.                      |
-| **text version**  | The revision stamp of the question and criteria strings; readings belong to a version.                |
+| Term              | Meaning                                                                                                                                                                                                                                                                                                                   |
+| ----------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **ask**           | The permission question the hub raises (`PromptPermissionDetails`), with a `requestId` and a gate family.                                                                                                                                                                                                                 |
+| **gate family**   | What kind of ask it is, as the hub stamps it: `accessIntent.surface` — `bash`, `tool`, `path`, `external_directory`, a directional member, a tool name. Our `surfaces` config lists these. A forwarded ask also carries a *display* surface (the child's tool name), which is not the family and must not be read as one. |
+| **link**          | An `authorize` callback registered with the hub's `authorizerChain`.                                                                                                                                                                                                                                                      |
+| **verdict**       | `allow` · `deny(reason)` · `defer` — the three things a link may answer an ask with.                                                                                                                                                                                                                                      |
+| **reading**       | One per-question probability returned by the decision model.                                                                                                                                                                                                                                                              |
+| **scored / veto** | A scored question combines in the min-rule; a veto question can block an `allow` alone (D-24).                                                                                                                                                                                                                            |
+| **polarity**      | Whether a high reading is safe or unsafe, declared per question (`unsafeWhenHigh`).                                                                                                                                                                                                                                       |
+| **floor**         | A shape this link refuses to **approve**, whatever the model reads (D-25).                                                                                                                                                                                                                                                |
+| **opaque shape**  | A call whose full effect is not visible in the command text, so no reading about it is trustworthy.                                                                                                                                                                                                                       |
+| **state**         | The `{value, context}` object sent with the questions — the cost driver of a request.                                                                                                                                                                                                                                     |
+| **dry run**       | Run the whole pipeline, log the readings and the would-be verdict, then `defer`.                                                                                                                                                                                                                                          |
+| **text version**  | The revision stamp of the question and criteria strings; readings belong to a version.                                                                                                                                                                                                                                    |
 
 ## 4. Where the link sits
 
@@ -93,10 +93,14 @@ Ordering rules (D-13):
 Everything before this link is the hub's: user `allow`/`deny` rules, hard blocks, dangerous-shape detection, the read-only fast path, bash segmentation and wrapper policy, protected paths, the ASK UI and its review log.
 Most ordinary calls never reach this link, and that is the point of D-01.
 
-Two hub knobs bound what this link can decide:
+One hub mechanism bounds what this link can decide:
 
-- `modelDelegation.allowedSurfaces` / `excludedSurfaces` — which surfaces may go to a model at all.
-- Bounded delegation — an `allow` on a `path` or `external_directory` ask becomes `defer` whatever we answer (D-09).
+- **Bounded delegation** (`delegation-envelope.ts`, in the hub since 20.9.0) — an `allow` we return on a `path`-family or `external_directory`-family ask is downgraded to `defer`, on the family named by `accessIntent.surface`.
+  One exception: an `external_directory`-family bash ask carrying `accessIntent.delegationLicense: "nothing-on-disk"` — a fact the asking gate computed, not us — is honored, and the hub logs it as `authorizer_allow_licensed`.
+
+There is no hub-side surface allowlist for model judgment.
+A `modelDelegation.allowedSurfaces` / `excludedSurfaces` knob is proposed in hub ADR 0007 §5 and listed as a Non-Goal of plan 0599, so it is not in the shipped config schema at hub 42.0.0; nothing here may assume it.
+What the operator controls today is `authorizerChain` (hub config-schema `authorizerChain: string[]`), which decides whether this link is consulted at all.
 
 `OPEN` (§17-1): whether the hub should expose the chain profile and surface coverage this link needs as a query rather than a config assumption.
 
@@ -148,7 +152,8 @@ Requirements on the set:
 
 ### 6.4 Surfaces we do not judge
 
-A surface outside `surfaces` defers with `surface_not_configured`, and the hub's `modelDelegation.allowedSurfaces` is what actually bounds delegation — our list is a belt, not the authority.
+A gate family outside `surfaces` defers with `surface_not_configured`, matched on the family the hub stamps at `accessIntent.surface`.
+Our list is a belt, not the authority: the hub's bounded-delegation checkpoint caps what any link's `allow` can reach whatever this says, and the hub keeps no model-delegation surface list (§5).
 `OPEN` (§17-4): the default for a surface the hub newly covers.
 Tool annotations (`readOnlyHint`, `destructiveHint`, `idempotentHint`, `openWorldHint`) are not consulted today; `idempotentHint` is the cheapest input to the sibling-call sharing rule (§9).
 
@@ -215,10 +220,9 @@ Every failure resolves to `defer` with a reason code; none may stall the session
 Two configs, deliberately separate: **chain policy** in the hub, **model mechanism** here.
 
 ```jsonc
-// @gotgenes/pi-permission-system's config — names the link and bounds delegation
+// @gotgenes/pi-permission-system's config — names the link in the chain
 {
-  "authorizerChain": ["decisions-judge"],
-  "modelDelegation": { "allowedSurfaces": ["bash"] }
+  "authorizerChain": ["decisions-judge"]
 }
 ```
 
@@ -233,7 +237,8 @@ Two configs, deliberately separate: **chain policy** in the hub, **model mechani
 }
 ```
 
-- Read from `<agentDir>/extensions/pi-permission-decisions-judge/config.json` and `<cwd>/.pi/pi-permission-decisions-judge.json`, project over global, nested objects merged one level deep.
+- Read from `<agentDir>/extensions/pi-permission-decisions-judge/config.json` and `<cwd>/.pi/extensions/pi-permission-decisions-judge/config.json`, project over global, nested objects merged one level deep.
+  The project layer is read only on a trusted project — it chooses the endpoint that receives the prompt and the command under judgment (D-31) — and a file skipped that way is named at session start.
 - **No config file at all means the operator is declining the link** — the extension registers nothing.
 - Validation is zod, errors are reported with the source path and field path, and an unparseable file never takes the extension down.
   Threshold and limit bounds are enforced (`0 ≤ deny < allow ≤ 1`, `32 ≤ maxStateTokens ≤ 4096`, `250 ≤ timeoutMs ≤ 60000`).
@@ -283,15 +288,17 @@ are answerable from the log alone:
   `OPEN` (§17-8): a tested range rather than a lower bound, the way `@mzwing/pi-permission-auto-review` pins a run of hub majors in its peer dependencies.
 - **Co-existing links are a real hazard**: `@mzwing/pi-permission-auto-review`, `pi-permission-classifier`, `@gotgenes/pi-permission-model-judge`, `@geohar/pi-permissions-analyzer` are all chain links.
   Chain order is config, and a link ahead of us answers first — so the startup report must print the actual chain, our position in it, and any other registered link (D-10).
-- **Surfaces we can never decide**: `path` and `external_directory` asks are downgraded by the hub's bounded-delegation checkpoint (D-09), so registering on them yields defers and must be reported as such rather than mistaken for coverage.
-- **`user_bash` (`!`/`!!`) is the hub's surface, not a gap of ours** — the hub forwards user shell input to the chain; whether this link judges it is a `surfaces` config choice, and a run started by an extension message carries no user prompt for `authorized` (§6.3).
+- **Families we can never approve**: a `path`-family or `external_directory`-family ask is downgraded by the hub's bounded-delegation checkpoint (D-09), so registering on them yields defers and must be reported as such rather than mistaken for coverage.
+  Hub 41.0.0 added one exception: an `external_directory` bash ask carrying the `nothing-on-disk` license its gate computed is honored.
+- **`user_bash` (`!`/`!!`) never reaches this link**: the hub subscribes to `session_start`, `resources_discover`, `session_shutdown`, `before_agent_start`, `input`, and `tool_call` — not to Pi's `user_bash` lifecycle event — so user-typed shell input raises no ask and no chain link is consulted.
+  A `surfaces` entry naming it would be dead config, not coverage.
 - **The endpoint's engine and build are a compatibility surface** (D-23): question-type behaviour, prompt-prefix sharing, the per-request size ceiling, and reading quality all depend on them.
   `OPEN` (§17-9): record that assumption set and how each assumption breaks in the package skill.
 
 ## 16. Acceptance criteria
 
 1. With no config file, nothing registers and no ask is affected.
-2. Naming the link in `authorizerChain` without naming it in `modelDelegation.allowedSurfaces` yields no judgment for that surface, and the startup report says why.
+2. Naming the link in `authorizerChain` while leaving its own `surfaces` list empty yields no judgment for any gate family, and the startup report says why.
 3. A floor shape never produces `allow`, reaches no network call, and logs the matched rule name.
 4. An opaque shape, a missing command, or a call that will not fit the state budget produces `defer` before any request.
 5. One request carries all four questions; a missing, non-`noul`, or non-finite answer produces `defer` with a parse reason, never an allow.

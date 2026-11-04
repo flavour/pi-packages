@@ -3,7 +3,7 @@
 A [`pi-permission-system`](../pi-permission-system/) **Authorizer chain link** that answers an `ask` with per-question probability readings from a **`/v1/systemone` decision endpoint**, instead of asking a hosted chat model for one verdict.
 
 **Status: working skeleton (2026-10-15).**
-The link is implemented and unit-tested (70 tests), and it runs end to end against the live endpoint (`pnpm live-check`).
+The link is implemented and unit-tested, and it runs end to end against the live endpoint (`pnpm live-check`).
 It is **not yet enabled in a live Pi session** — that needs the two config edits below.
 The schema default for `dryRun` is `false` (`src/config.ts`), so a trial sets it to `true` explicitly until a corpus justifies the thresholds (D-14).
 
@@ -17,7 +17,7 @@ Order of the decision (D-13): deterministic refusals first, then the endpoint, t
 Every failure path — no config, surface out of scope, no command visible, opaque wrapper, state over budget, endpoint down, unparseable answer — resolves to `defer`.
 This link never invents policy and never denies on a technicality.
 
-**It emits no rules and enforces no policy of the hub's:** the deterministic layer stays the policy owner, and the chain owner's bounded-delegation checkpoint downgrades an `allow` on a `path` or `external_directory` ask to `defer` regardless of what this package decides.
+**It emits no rules and enforces no policy of the hub's:** the deterministic layer stays the policy owner, and the chain owner's bounded-delegation checkpoint downgrades an `allow` on a `path`-family or `external_directory`-family ask to `defer` regardless of what this package decides — the one exception is an `external_directory` bash ask carrying the `nothing-on-disk` license its gate computed, which the hub honors and logs.
 
 ## Enabling it
 
@@ -30,8 +30,10 @@ Two deliberate edits enable it, one in `pi-permission-system`'s config and one i
 Naming the link is what grants it authority; installing the package grants nothing.
 
 Endpoint, model, thresholds and question set live in **this** package's own config file, not theirs (`docs/decisions.md` D-01, D-04).
-Config is read from `<agentDir>/extensions/pi-permission-decisions-judge/config.json` and `<cwd>/.pi/pi-permission-decisions-judge.json` (project over global); no config file at all means the operator is declining the link and nothing registers.
-See `config/config.example.json`.
+Config is read from `<agentDir>/extensions/pi-permission-decisions-judge/config.json` and `<cwd>/.pi/extensions/pi-permission-decisions-judge/config.json` (project over global) — the same layout the hub and `pi-permission-model-judge` read, so one `.pi/extensions/` directory holds a repository's whole permission layer.
+The project file is read only on a trusted project: it chooses the endpoint that receives your prompt and the command under judgment, and `thresholds.allow` decides when that endpoint's reading becomes an `allow`.
+An untrusted checkout gets no vote, and the skipped path is reported at session start.
+No config file at all means the operator is declining the link and nothing registers — see `config/config.example.json`.
 
 The hub bounds which surfaces a link may judge with a hard-coded checkpoint, not a config key: a link's `allow` on an `external_directory` or `path` ask is downgraded to `defer`, so this link can only ever rule a bash-shaped non-path ask.
 A configurable surface list is not in the hub today, and hub plan `docs/plans/0599-register-authorizer-seam.md` lists it as a Non-Goal, so do not add such a key to a config file.
@@ -41,7 +43,7 @@ The hub's config schema is strict, so an unknown key rejects the whole scope con
 
 ```bash
 pnpm install                                                   # repo root
-pnpm --filter pi-permission-decisions-judge check test         # typecheck + 70 tests
+pnpm --filter pi-permission-decisions-judge check test         # typecheck + unit tests
 pnpm --filter pi-permission-decisions-judge live-check         # real endpoint, fixed scenarios
 pnpm --filter pi-permission-decisions-judge live-check -- --dry-run
 ```
