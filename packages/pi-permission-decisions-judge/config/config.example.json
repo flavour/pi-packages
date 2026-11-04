@@ -1,0 +1,17 @@
+{
+  "endpoint": {
+    "baseUrl": "http://jetson:9931",
+    "path": "/v1/systemone",
+    "model": "LiquidAI/d1-3B-GGUF:Q8_0",
+    "timeoutMs": 1500
+  },
+  "thresholds": {
+    "allow": 0.7,
+    "deny": 0.3
+  },
+  "limits": {
+    "maxStateTokens": 320
+  },
+  "surfaces": ["bash"],
+  "dryRun": true
+}
