@@ -1,0 +1,56 @@
+{
+  "name": "pi-permission-decisions-judge",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Per-question probability readings from a /v1/systemone decision endpoint — a pi-permission-system Authorizer chain link",
+  "type": "module",
+  "imports": {
+    "#src/*": "./src/*",
+    "#test/*": "./test/*"
+  },
+  "keywords": [
+    "pi-package",
+    "pi",
+    "pi-extension",
+    "pi-coding-agent",
+    "permissions",
+    "authorizer",
+    "decisions-judge",
+    "policy",
+    "access-control"
+  ],
+  "author": {
+    "name": "Fran Boon"
+  },
+  "license": "MIT",
+  "engines": {
+    "node": ">=22"
+  },
+  "pi": {
+    "extensions": [
+      "./src/index.ts"
+    ]
+  },
+  "scripts": {
+    "check": "tsc --noEmit",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "live-check": "node --experimental-strip-types scripts/live-check.ts",
+    "lint:md": "rumdl check *.md docs/**/*.md"
+  },
+  "peerDependencies": {
+    "@earendil-works/pi-coding-agent": ">=1.0.0",
+    "@gotgenes/pi-permission-system": ">=27.0.0"
+  },
+  "devDependencies": {
+    "@earendil-works/pi-coding-agent": "1.0.0",
+    "@gotgenes/pi-permission-system": "40.3.0",
+    "@types/node": "catalog:",
+    "rumdl": "catalog:",
+    "typescript": "catalog:",
+    "vitest": "catalog:"
+  },
+  "dependencies": {
+    "zod": "^4.6.7"
+  }
+}
